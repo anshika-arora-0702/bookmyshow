@@ -1,4 +1,5 @@
 from pydantic import BaseModel, UUID4, Field
+from models.database.audis.audi_type import AudiType
 
 class CreateAudiRequest(BaseModel):
 
@@ -21,7 +22,5 @@ class CreateAudiRequest(BaseModel):
         le=99
     )
 
-    type:int = Field(
-        le=99
-    )
+    type:AudiType
     

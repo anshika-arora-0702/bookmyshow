@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, Enum
 from models.database.base import Base
+from models.database.audis.audi_type import AudiType
 
 
 class Audi(Base):
@@ -40,9 +41,8 @@ class Audi(Base):
     )
 
     type = Column(
-        Integer, 
-        ForeignKey("audi_type.id"),
-        nullable = False
+        Enum(AudiType, name="audi_type"),
+        nullable=False
     )
     
     created_at = Column(

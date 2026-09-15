@@ -1,9 +1,6 @@
 from models.domain.audis.audi import Audi as AudiDomain
 from models.database.audis.audi import Audi as AudiDB
 
-from models.domain.audis.audi_type import AudiType as AudiTypeDomain
-from models.database.audis.audi_type import AudiType as AudiTypeDB
-
 from models.database.users.user import User as UserDB
 
 from exceptions import audi_exceptions as e
@@ -129,66 +126,3 @@ class AudiRepo:
         except Exception :
             self.db_session.rollback()
             raise e.AudiException()
-
-    def createAudiType(self, audi_type_to_create_domain):
-
-        audi_type_to_create_db = self._to_db(audi_type_to_create_domain)
-
-        if self.db_session.get(AudiDB,audi_type_to_create_db.id) != None:
-            raise e.AudiAlreadyExists(audi_type_to_create_db.id)
-
-        user = self.db_session.get(UserDB,audi_type_to_create_db.added_by)
-
-        if user == None:
-            raise ae.UserDoesnotExistException()
-
-        if user.role not in ('SUPER_ADMIN', 'ADMIN'):
-            raise ae.UnauthorizedException("Audi Type", "create")
-
-        try:
-            self.db_session.add(audi_type_to_create_db)
-            self.db_session.commit()
-            self.db_session.refresh(audi_type_to_create_db)
-            return self._to_domain(audi_type_to_create_db)
-
-        except Exception :
-            self.db_session.rollback()
-            raise e.AudiException()
-
-
-
-
-    # def fetchAudiType(self, audi_typeId):
-
-    #     if audi_typeId == None:
-    #         raise ValueError("Audi Type id required")
-
-    #     #do we need to verify user here???
-
-    #     fetched_audi_type = self.audiRepo.fetchAudiType(audi_typeId)
-
-    #     return fetched_audi_type
-
-    # def deleteAudiType(self, audi_type_to_delete):
-
-    #     if audi_type_to_delete.id == None:
-    #         raise ValueError("Audi Type id required")
-        
-    #     if audi_type_to_delete.user_id == None:
-    #         raise ValueError("User id required")
-
-    #     deleted_audi_type = self.audiRepo.deleteAudiType(audi_type_to_delete)
-
-    #     return deleted_audi_type
-
-    # def updateAudiType(self, audi_type_to_update):
-
-    #     if audi_type_to_update.id == None:
-    #         raise ValueError("Audi Type id required")
-
-    #     if audi_type_to_update.user_id == None:
-    #         raise ValueError("User id required")
-
-    #     updated_audi_type = self.audiRepo.updateAudiType(audi_type_to_update)
-
-    #     return updated_audi_type
