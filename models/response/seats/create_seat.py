@@ -4,7 +4,7 @@ class CreateSeatResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id:str
+    id:int
     audi_id:str
     type:int
     column_num:int

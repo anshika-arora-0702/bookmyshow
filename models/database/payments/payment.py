@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Float, REAL, Integer,  UUID, DateTime, ForeignKey
+from sqlalchemy import Column, Enum, REAL, UUID, DateTime
 from models.database.base import Base
+from models.database.payments.payment_status import PaymentStatus
+from models.database.payments.payment_mode import PaymentMode
 
 class Payment(Base):
 
@@ -17,14 +19,12 @@ class Payment(Base):
     )
 
     status = Column(
-        Integer,
-        ForeignKey("payment_status.id"),
+        Enum(PaymentStatus, name = "payment_status"),
         nullable=False
     )
 
     mode = Column(
-        Integer,
-        ForeignKey("payment_mode.id"),
+        Enum(PaymentMode, name = "payment_mode"),
         nullable=False
     )
 

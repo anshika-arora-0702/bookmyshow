@@ -1,28 +1,7 @@
-from sqlalchemy import Column, Integer,  String, DateTime
-from models.database.base import Base
+from enum import Enum
 
-class PaymentMode(Base):
-
-    __tablename__ = "payment_mode"
-
-    id = Column(
-        Integer, 
-        primary_key=True,
-        nullable=False
-    )
-
-    name = Column(
-        String,
-        nullable=False,
-        unique=True
-    )
-
-    created_at = Column(
-        DateTime(timezone=True), 
-        nullable=False
-    )
-
-    updated_at = Column(
-        DateTime(timezone=True), 
-        nullable=False
-    )
+class PaymentMode(str, Enum):
+    CREDIT_CARD = "CREDIT_CARD"
+    DEBIT_CARD = "DEBIT_CARD"
+    UPI = "UPI"
+    WALLET = "WALLET"

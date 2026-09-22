@@ -1,7 +1,6 @@
 from pydantic import BaseModel, ConfigDict
-from domain.seats.seat import Seat
 
-class BookingCreateResponse(BaseModel):
+class CreateBookingResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 

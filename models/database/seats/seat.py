@@ -14,9 +14,9 @@ class Seat(Base):
         ),
     )
 
-    id =  Column(
-        UUID(as_uuid=True), 
-        primary_key=True, 
+    id = Column(
+        Integer,
+        unique=True,
         nullable=False
     )
 

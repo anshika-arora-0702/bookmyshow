@@ -2,10 +2,10 @@ import utils
 
 class Audi:
 
-    def __init__(self, id, added_by, cinema_id, screen_num, row_count, column_count, type):
+    def __init__(self, id, user_id, cinema_id, screen_num, row_count, column_count, type):
 
         self.id = id
-        self.added_by = added_by
+        self.user_id = user_id
         self.cinema_id = cinema_id
         self.screen_num = screen_num
         self.row_count = row_count

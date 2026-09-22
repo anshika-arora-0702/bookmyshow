@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, JSON, UUID, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, JSON, UUID, DateTime, ForeignKey, Enum, ARRAY
 from models.database.base import Base
+from models.database.bookings.booking_status import BookingStatus
 
 class Booking(Base):
 
@@ -23,20 +24,13 @@ class Booking(Base):
         nullable=False
     )
 
-    # payment_mode = Column(
-    #     Integer, 
-    #     ForeignKey("payment_mode.id"),
-    #     nullable=False
-    # )
-
     status = Column(
-        Integer, 
-        ForeignKey("booking_status_type.id"),
-        nullable = False
+        Enum(BookingStatus, name="booking_status"),
+        nullable=False
     )
 
-    seats = Column(
-        JSON,
+    seat_nums= Column(
+        ARRAY(Integer),
         nullable=False
     )
 
@@ -48,4 +42,14 @@ class Booking(Base):
     updated_at = Column(
         DateTime(timezone=True), 
         nullable=False
+    )
+
+    requested_time = Column(
+        DateTime(timezone=True),
+        nullable = False
+    )
+
+    booking_time = Column(
+        DateTime(timezone=True),
+        nullable=True
     )

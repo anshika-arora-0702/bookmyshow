@@ -1,22 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4
 from datetime import time
-from domain.seats.seat import Seat
 
 
-class BookingCreateRequest(BaseModel):
+class CreateBookingRequest(BaseModel):
 
-    user_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    show_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    payment_mode:int
-
-    seats: list[Seat]
+    user_id: UUID4
+    show_id:UUID4
+    payment_id:UUID4
+    seat_nums: list[int]
 
     

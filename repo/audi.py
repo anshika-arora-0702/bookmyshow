@@ -19,7 +19,7 @@ class AudiRepo:
                       cinema_id = audi.cinema_id, 
                       row_count = audi.row_count,  
                       column_count = audi.column_count, 
-                      added_by = audi.added_by,
+                      added_by = audi.user_id,
                       type = audi.type,
                       screen_num = audi.screen_num,
                       created_at = datetime.utcnow(),
@@ -39,12 +39,10 @@ class AudiRepo:
 
     def createAudi(self, audi_to_create_domain:AudiDomain) -> AudiDomain:
 
-        audi_to_create_db = self._audi_to_db(audi_to_create_domain)
+        if self.db_session.get(AudiDB,audi_to_create_domain.id) != None:
+            raise e.AudiAlreadyExists(audi_to_create_domain.id)
 
-        if self.db_session.get(AudiDB,audi_to_create_db.id) != None:
-            raise e.AudiAlreadyExists(audi_to_create_db.id)
-
-        user = self.db_session.get(UserDB,audi_to_create_db.added_by)
+        user = self.db_session.get(UserDB,audi_to_create_domain.user_id)
 
         if user == None:
             raise ae.UserDoesnotExistException()
@@ -53,6 +51,7 @@ class AudiRepo:
             raise ae.UnauthorizedException("Audi", "create")
 
         try:
+            audi_to_create_db = self._audi_to_db(audi_to_create_domain)
             self.db_session.add(audi_to_create_db)
             self.db_session.commit()
             self.db_session.refresh(audi_to_create_db)

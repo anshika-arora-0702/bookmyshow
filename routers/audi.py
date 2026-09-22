@@ -27,7 +27,7 @@ def createAudiRouter():
     async def create_audi(new_audi_body:CreateAudiRequest, audiService:AudiService = Depends(create_audi_service)):
 
         new_audi = Audi(id = utils.getRandomId(), 
-                        added_by= new_audi_body.user_id, 
+                        user_id = new_audi_body.user_id, 
                         cinema_id=new_audi_body.cinema_id, 
                         screen_num= new_audi_body.screen_num, 
                         row_count=new_audi_body.row_count, 

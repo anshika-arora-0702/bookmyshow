@@ -8,7 +8,7 @@ class AudiService():
         if new_audi.id == None:
             raise ValueError("Error in creating audi id")
         
-        if new_audi.added_by == None:
+        if new_audi.user_id == None:
             raise ValueError("User id required")
         
         if new_audi.cinema_id == None:
