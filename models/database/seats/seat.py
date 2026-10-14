@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
 from models.database.base import Base
 
 class Seat(Base):
@@ -6,6 +6,7 @@ class Seat(Base):
     __tablename__ = "seat"
 
     __table_args__ = (
+        PrimaryKeyConstraint("audi_id", "id"),
         UniqueConstraint(
             "audi_id",
             "row_char",
@@ -15,7 +16,7 @@ class Seat(Base):
     )
 
     id = Column(
-        Integer,
+        UUID(as_uuid = True),
         unique=True,
         nullable=False
     )

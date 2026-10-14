@@ -1,6 +1,6 @@
 from enum import Enum
 
 class AudiType(str, Enum):
-    CLASSIC = "Classic"
-    IMAX = "Imax"
-    GOLD = "Gold"
+    CLASSIC = "CLASSIC"
+    IMAX = "IMAX"
+    GOLD = "GOLD"

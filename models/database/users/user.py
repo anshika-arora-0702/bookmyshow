@@ -27,7 +27,7 @@ class User(Base):
     )
 
     phone = Column(
-        Integer, 
+        String, 
         nullable=False, 
         unique=True
     )

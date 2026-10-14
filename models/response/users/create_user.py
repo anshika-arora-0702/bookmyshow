@@ -1,9 +1,9 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, UUID4
 
-class CreateShowResponse(BaseModel):
+class CreateUserResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id:str
+    id:UUID4
     first_name:str
     last_name:str | None = None

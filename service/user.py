@@ -1,3 +1,4 @@
+from models.database.users.user_role import UserRole
 class UserService():
 
     def __init__(self, userRepo):
@@ -15,6 +16,40 @@ class UserService():
             raise ValueError("User phone number required")
 
         created_user = self.userRepo.createUser(new_user)
+        return created_user
+    
+    def createAdmin(self, new_admin, created_by):
+
+        if new_admin.id == None:
+            raise ValueError("Error in creating user id")
+        
+        if new_admin.first_name == None:
+            raise ValueError("User First Name required")
+        
+        if new_admin.phone == None:
+            raise ValueError("User phone number required")
+        
+        if created_by == None:
+            raise ValueError("Created by id required")
+
+        created_user = self.userRepo.createAdmin(new_admin  , created_by)
+        return created_user
+    
+    def createSuperAdmin(self, new_super_admin, created_by):
+
+        if new_super_admin.id == None:
+            raise ValueError("Error in creating user id")
+        
+        if new_super_admin.first_name == None:
+            raise ValueError("User First Name required")
+        
+        if new_super_admin.phone == None:
+            raise ValueError("User phone number required")
+        
+        if created_by == None:
+            raise ValueError("Created by id required")
+
+        created_user = self.userRepo.createAdmin(new_super_admin  , created_by)
         return created_user
 
     def fetchUser(self, user_to_be_fetched):

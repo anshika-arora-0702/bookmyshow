@@ -17,6 +17,12 @@ class Booking(Base):
         ForeignKey("user.id"),
         nullable=False
     )
+    
+    show_id = Column(
+        UUID(as_uuid=True), 
+        ForeignKey("show.id"),
+        nullable=False
+    )
 
     payment_id = Column(
         UUID(as_uuid=True), 
@@ -29,8 +35,8 @@ class Booking(Base):
         nullable=False
     )
 
-    seat_nums= Column(
-        ARRAY(Integer),
+    seat_ids = Column(
+        ARRAY(UUID),
         nullable=False
     )
 

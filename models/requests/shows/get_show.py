@@ -1,12 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4
 from datetime import date
 
 class GetShowRequest(BaseModel):
 
-    movie_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    date:date
+    id: UUID4
     

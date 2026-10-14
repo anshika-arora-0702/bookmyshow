@@ -1,13 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4
 
 class GetPaymentRequest(BaseModel):
 
-    id:int = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    user_id:int = Field(
-        min_length= 36,
-        max_length= 36
-    )
+    id: UUID4
+    user_id: UUID4

@@ -20,6 +20,7 @@ from service.payment import PaymentService
 from service.seat import SeatService
 from service.show import ShowService
 from service.user import UserService
+from service.payment_provider import FakePaymentProvider
 
 def get_db():
     #SessionLocal is actually session generating factory/class
@@ -34,9 +35,17 @@ def create_audi_service(db:Session = Depends(get_db)):
     audiRepo = AudiRepo(db)
     return AudiService(audiRepo)
 
-def create_booking_service(db:Session = Depends(get_db)):
+
+def create_payment_service(db:Session = Depends(get_db)):
+    paymentRepo = PaymentRepo(db)
+    return PaymentService(paymentRepo, FakePaymentProvider() )
+
+def create_booking_service(db:Session = Depends(get_db),
+                           payment_service : PaymentService = Depends(create_payment_service)):
     bookingRepo = BookingRepo(db)
-    return BookingService(bookingRepo)
+    return BookingService(bookingRepo, payment_service, db)
+
+
 
 def create_cinema_service(db:Session = Depends(get_db)):
     cinemaRepo = CinemaRepo(db)
@@ -46,9 +55,6 @@ def create_movie_service(db:Session = Depends(get_db)):
     movieRepo = MovieRepo(db)
     return MovieService(movieRepo)
 
-def create_payment_service(db:Session = Depends(get_db)):
-    paymentRepo = PaymentRepo(db)
-    return PaymentService(paymentRepo)
 
 def create_seat_service(db:Session = Depends(get_db)):
     seatRepo = SeatRepo(db)

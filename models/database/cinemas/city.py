@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UUID
 from models.database.base import Base
 
 class City(Base):
@@ -18,7 +18,7 @@ class City(Base):
     )
 
     added_by = Column(
-        String,
+        UUID,
         ForeignKey("user.id"),
         nullable=False
     )

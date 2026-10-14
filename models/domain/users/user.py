@@ -1,6 +1,6 @@
 import utils
 
-class Show:
+class User:
 
     def __init__(self, id, first_name, last_name, role, phone, email, dob):
 

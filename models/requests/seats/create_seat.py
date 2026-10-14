@@ -1,28 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4, Field
+from models.database.seats.seat_type import SeatType
 
 class SeatCreateRequest(BaseModel):
 
-    audi_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    column_num:int = Field(
-        ge = 1,
-        le=99
-    )
-
-    row_char:str = Field(
-        max_length=2
-    )
-
-    type:int = Field(
-        ge = 1,
-        le=99
-    )
-
-    user_id:str = Field(
-        min_length=36,
-        max_length=36
-    )
+    audi_id: UUID4
+    column_num:int
+    row_char:str
+    type:SeatType
+    user_id:UUID4
     

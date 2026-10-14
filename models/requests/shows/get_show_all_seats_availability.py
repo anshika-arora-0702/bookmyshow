@@ -1,9 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4, Field
 
 class GetShowSeatAvailabilityRequest(BaseModel):
 
-    show_id:str = Field(
-        min_length= 36,
-        max_length= 36        
-    )
+    show_id:UUID4
     

@@ -1,6 +1,7 @@
 from enum import Enum
 
 class BookingStatus(str, Enum):
-    CANCELLED = "Cancelled"
-    BOOKED = "Booked"
-    CONFIRMATION_PENDING = "Confirmation Pending"
+    CANCELLED = "CANCELLED"
+    BOOKED = "BOOKED"
+    PENDING = "PENDING"
+    FAILED = "FAILED"

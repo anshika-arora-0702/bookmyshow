@@ -17,7 +17,7 @@ class Cinema(Base):
     )
 
     added_by = Column(
-        String,
+        UUID,
         ForeignKey("user.id"),
         nullable=False
     )

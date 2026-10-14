@@ -9,6 +9,7 @@ from database import SessionLocal, Engine
 
 from routers.audi import createAudiRouter
 from routers.booking import createBookingRouter
+from routers.user import createUserRouter
 app = FastAPI()
 
 
@@ -25,4 +26,10 @@ app.include_router(
     createBookingRouter(),
     prefix = "/booking",
     tags = ["Booking Management"]
+)
+
+app.include_router(
+    createUserRouter(),
+    prefix = "/user",
+    tags = ["User Management"]
 )

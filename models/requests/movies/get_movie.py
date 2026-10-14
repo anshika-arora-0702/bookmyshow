@@ -1,9 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4
 
 class GetMovieRequest(BaseModel):
 
-    id:int = Field(
-        min_length= 36,
-        max_length= 36
-    )
+    id: UUID4
     

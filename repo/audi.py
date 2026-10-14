@@ -4,7 +4,7 @@ from models.database.audis.audi import Audi as AudiDB
 from models.database.users.user import User as UserDB
 
 from exceptions import audi_exceptions as e
-from exceptions import auth_exceptions as ae
+from exceptions import user_exceptions as ae
 
 from datetime import datetime,timezone
 
@@ -22,8 +22,8 @@ class AudiRepo:
                       added_by = audi.user_id,
                       type = audi.type,
                       screen_num = audi.screen_num,
-                      created_at = datetime.utcnow(),
-                      updated_at = datetime.utcnow()
+                      created_at = datetime.now(timezone.utc),
+                      updated_at = datetime.now(timezone.utc)
                       )
 
     def _audi_to_domain(self,audi:AudiDB) -> AudiDomain:

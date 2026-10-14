@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, UUID4
+from models.database.audis.audi_type import AudiType
 
 class CreateAudiResponse(BaseModel):
 
@@ -6,6 +7,6 @@ class CreateAudiResponse(BaseModel):
 
     id:UUID4
     cinema_id:UUID4
-    type:int
+    type: AudiType
     
     

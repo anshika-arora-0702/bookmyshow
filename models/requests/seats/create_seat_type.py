@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4, Field
 
 class SeatTypeCreateRequest(BaseModel):
 
@@ -6,7 +6,4 @@ class SeatTypeCreateRequest(BaseModel):
         max_length=50
     )
 
-    user_id:str = Field(
-        min_length=36,
-        max_length=36
-    )
+    user_id:UUID4

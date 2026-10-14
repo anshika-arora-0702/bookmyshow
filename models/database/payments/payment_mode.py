@@ -5,3 +5,4 @@ class PaymentMode(str, Enum):
     DEBIT_CARD = "DEBIT_CARD"
     UPI = "UPI"
     WALLET = "WALLET"
+    GIFT_CARD = "GIFT_CARD"

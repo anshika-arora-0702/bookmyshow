@@ -1,12 +1,17 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 
 from exceptions import booking_exceptions
+from exceptions import show_exceptions
 
 from models.requests.bookings.create_booking import CreateBookingRequest
 from models.requests.bookings.fetch_booking import FetchBookingRequest
 from models.requests.bookings.cancel_booking import CancelBookingRequest
 
 from models.domain.bookings.booking import Booking
+from models.domain.payments.payment import Payment
+
+from models.database.bookings.booking_status import BookingStatus
+from models.database.payments.payment_status import PaymentStatus
 
 from models.response.bookings.create_booking import CreateBookingResponse
 from models.response.bookings.fetch_booking import FetchBookingResponse
@@ -24,16 +29,23 @@ def createBookingRouter():
     @router.post("/createBooking")
     async def create_booking(booking_to_create_body:CreateBookingRequest, bookingService:BookingService = Depends(create_booking_service)):
 
+        payment = Payment(id = utils.getRandomId(),
+                          amount = booking_to_create_body.payment_details.amount,
+                          mode = booking_to_create_body.payment_details.mode,
+                          status= PaymentStatus.PENDING)
+        
         new_booking = Booking(id = utils.getRandomId(), 
-                        added_by = booking_to_create_body.user_id, 
+                        user_id = booking_to_create_body.user_id, 
+                        status = BookingStatus.PENDING,
+                        payment_id= payment.id,
+                        seat_ids = booking_to_create_body.seat_ids, 
                         show_id = booking_to_create_body.show_id, 
-                        payment_id = booking_to_create_body.payment_id, 
-                        seats = booking_to_create_body.seats, 
-                        requested_time = datetime.now(timezone.utc)
+                        requested_time = datetime.now(timezone.utc),
+                        booking_time = datetime.now(timezone.utc)
                         )
 
         try:
-            created_booking = bookingService.createBooking(new_booking)
+            created_booking = bookingService.createBooking(new_booking, payment)
             created_booking_response = CreateBookingResponse.model_validate(created_booking)
             return {"Created Booking" : created_booking_response}
 

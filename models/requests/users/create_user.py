@@ -13,14 +13,14 @@ class CreateUserRequest(BaseModel):
         max_length = 20
     )
 
-    role:str
-
     phone: str = Field(
-        pattern=r"^(?:\+91[- ]?)?[6-9]\d{9}$"
+        pattern=r"^[6-9]\d{9}$"
     )
 
     email:str | None = Field(
-        pattern = r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$"
+        pattern = r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$",
+        max_length= 100,
+        examples = ["aarav@example.com"]
     )
 
     dob:date

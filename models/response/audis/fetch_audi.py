@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, UUID4
+from models.database.audis.audi_type import AudiType
 
 class FetchAudiResponse(BaseModel):
 
@@ -6,7 +7,7 @@ class FetchAudiResponse(BaseModel):
 
     id:UUID4
     cinema_id:UUID4
-    type:int
+    type: AudiType
     row_count:int
     column_count:int
     screen_num:int
