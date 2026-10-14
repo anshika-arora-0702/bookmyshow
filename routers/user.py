@@ -110,6 +110,20 @@ def createUserRouter():
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=str(e)
             )
+
+    @router.delete("/deleteUser")
+    async def delete_user(user_to_delete_body:DeleteUserRequest, userService:UserService = Depends(create_user_service)):
+        try:
+             
+            deleted_user = userService.deleteUser(user_to_delete_body)
+            deleted_user_response = DeleteUserResponse.model_validate(deleted_user)
+            return {"Deleted User" : deleted_user_response}
+
+        except user_exceptions.UserDoesnotExistException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=str(e)
+            )
     return router
 
         

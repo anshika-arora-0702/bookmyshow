@@ -64,7 +64,7 @@ class UserService():
 
         return fetched_user
 
-    def delete(self, user_to_delete):
+    def deleteUser(self, user_to_delete):
 
         if user_to_delete.id == None:
             raise ValueError("Id required")
