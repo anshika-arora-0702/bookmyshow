@@ -69,7 +69,7 @@ class UserService():
         if user_to_delete.id == None:
             raise ValueError("Id required")
         
-        if user_to_delete.deleted_by_id == None:
+        if user_to_delete.deleted_by == None:
             raise ValueError("Deleted by id is required")
 
         deleted_user = self.userRepo.deleteUser(user_to_delete)

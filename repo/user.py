@@ -102,36 +102,36 @@ class UserRepo:
 
     def deleteUser(self, user_to_delete: DeleteUserRequest):
                 
-        deleted_user_db = self.db_session.get(UserDB, user_to_delete.id)
+        user_to_delete_db = self.db_session.get(UserDB, user_to_delete.id)
 
-        if deleted_user_db == None:
+        if user_to_delete_db == None:
             raise user_exceptions.UserDoesnotExistException(user_to_delete.id)
 
-        user_to_delete_db = self.db_session.get(UserDB,user_to_delete.deleted_by)
+        deleted_by_db = self.db_session.get(UserDB,user_to_delete.deleted_by)
 
         if user_to_delete.id != user_to_delete.deleted_by:
 
             if user_to_delete_db.role == UserRole.USER:
 
-                if not user_to_delete_db.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
+                if not deleted_by_db.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
                     raise user_exceptions.UnauthorizedException("User", "delete")
 
-            elif deleted_user_db.role == UserRole.ADMIN:
+            elif user_to_delete_db.role == UserRole.ADMIN:
 
-                if not user_to_delete_db.role == UserRole.SUPER_ADMIN: 
+                if not deleted_by_db.role == UserRole.SUPER_ADMIN: 
                     raise user_exceptions.UnauthorizedException("User", "delete")
 
             else :
                 raise user_exceptions.UnauthorizedException("User", "delete")
 
-            try:
-                self.db_session.delete(user_to_delete_db)
-                self.db_session.commit()
-                return self._user_to_domain(user_to_delete_db)
+        try:
+            self.db_session.delete(user_to_delete_db)
+            self.db_session.commit()
+            return self._user_to_domain(user_to_delete_db)
 
-            except Exception :
-                self.db_session.rollback()
-                raise user_exceptions()
+        except Exception :
+            self.db_session.rollback()
+            raise user_exceptions()
+            
 
-        return self._user_to_domain(deleted_user_db)
 
