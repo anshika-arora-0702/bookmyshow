@@ -1,6 +1,7 @@
 from models.domain.users.user import User as UserDomain
 from models.database.users.user import User as UserDB
 from models.database.users.user_role import UserRole
+from models.requests.users.fetch_user import FetchUserRequest
 from exceptions import user_exceptions
 
 from pydantic import UUID4
@@ -71,4 +72,30 @@ class UserRepo:
         except Exception :
             self.db_session.rollback()
             raise user_exceptions.UserException()
+
+    def fetchUser(self, user_to_fetch: FetchUserRequest):
+                
+        fetched_user_db = self.db_session.get(UserDB, user_to_fetch.id)
+
+        if fetched_user_db == None:
+            raise user_exceptions.UserDoesnotExistException(user_to_fetch.id)
+
+        fetched_by_user_db = self.db_session.get(UserDB,user_to_fetch.fetched_by)
+
+        if user_to_fetch.id != user_to_fetch.fetched_by:
+
+            if fetched_user_db.role == UserRole.USER:
+
+                if not fetched_by_user_db.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
+                    raise user_exceptions.UnauthorizedException("User", "fetch")
+
+            elif fetched_user_db.role == UserRole.ADMIN:
+
+                if not fetched_by_user_db.role == UserRole.SUPER_ADMIN: 
+                    raise user_exceptions.UnauthorizedException("User", "fetch")
+
+            else :
+                raise user_exceptions.UnauthorizedException("User", "fetch")
+
+        return self._user_to_domain(fetched_user_db)
 

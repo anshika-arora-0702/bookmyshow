@@ -13,6 +13,7 @@ from models.database.users.user_role import UserRole
 
 from models.response.users.create_user import CreateUserResponse
 from models.response.users.delete_user import DeleteUserResponse
+from models.response.users.fetch_user import FetchUserResponse
 
 import utils 
 
@@ -98,7 +99,17 @@ def createUserRouter():
 
     @router.post("/fetchUser")
     async def fetch_user(user_to_fetch_body:FetchUserRequest, userService:UserService = Depends(create_user_service)):
-        pass
+        try:
+             
+            fetched_user = userService.fetchUser(user_to_fetch_body)
+            fetched_user_response = FetchUserResponse.model_validate(fetched_user)
+            return {"Fetched User" : fetched_user_response}
+
+        except user_exceptions.UserDoesnotExistException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=str(e)
+            )
     return router
 
         

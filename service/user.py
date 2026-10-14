@@ -52,15 +52,15 @@ class UserService():
         created_user = self.userRepo.createAdmin(new_super_admin  , created_by)
         return created_user
 
-    def fetchUser(self, user_to_be_fetched):
+    def fetchUser(self, user_to_fetch):
 
-        if user_to_be_fetched.id == None:
+        if user_to_fetch.id == None:
             raise ValueError("User id required")
 
-        if user_to_be_fetched.fetched_by_id == None:
+        if user_to_fetch.fetched_by == None:
             raise ValueError("Fetched by id required")
 
-        fetched_user = self.userRepo.fetchUser(user_to_be_fetched)
+        fetched_user = self.userRepo.fetchUser(user_to_fetch)
 
         return fetched_user
 
