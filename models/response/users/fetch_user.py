@@ -8,8 +8,8 @@ class FetchUserResponse(BaseModel):
 
     id:UUID4
     first_name : str
-    last_name : str
+    last_name : str | None = None
     role : UserRole
     phone : str
-    email: str
-    dob : date
+    email: str | None = None
+    dob : date | None = None

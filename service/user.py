@@ -1,4 +1,3 @@
-from models.database.users.user_role import UserRole
 class UserService():
 
     def __init__(self, userRepo):
@@ -76,14 +75,17 @@ class UserService():
 
         return deleted_user
 
-    def updateUser(self, user_to_update):
+    def updateUser(self, user_id, updated_by, changes):
 
-        if user_to_update.id == None:
+        if not changes:
+            raise ValueError("No field to update")
+
+        if user_id == None:
             raise ValueError("Id required")
 
-        if user_to_update.updated_by_id == None:
+        if updated_by == None:
             raise ValueError("Updated by id is required")
 
-        updated_user = self.userRepo.updateUser(user_to_update)
+        updated_user = self.userRepo.updateUser(user_id, updated_by, changes)
 
         return updated_user

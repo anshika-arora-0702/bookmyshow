@@ -1,4 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from pydantic import UUID4
+
+import logging
+logger = logging.getLogger(__name__)
 
 from exceptions import user_exceptions
 
@@ -7,6 +11,7 @@ from models.requests.users.create_admin import CreateAdminRequest
 from models.requests.users.create_super_admin import CreateSuperAdminRequest
 from models.requests.users.delete_user import DeleteUserRequest
 from models.requests.users.fetch_user import FetchUserRequest
+from models.requests.users.update_user import UpdateUserRequest
 
 from models.domain.users.user import User
 from models.database.users.user_role import UserRole
@@ -14,6 +19,7 @@ from models.database.users.user_role import UserRole
 from models.response.users.create_user import CreateUserResponse
 from models.response.users.delete_user import DeleteUserResponse
 from models.response.users.fetch_user import FetchUserResponse
+from models.response.users.update_user import UpdateUserResponse
 
 import utils 
 
@@ -124,6 +130,47 @@ def createUserRouter():
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=str(e)
             )
+
+    @router.patch("/updateUser/{user_id}")
+    async def update_user(user_id:UUID4, user_to_update_body:UpdateUserRequest, userService:UserService = Depends(create_user_service)):
+        changes = user_to_update_body.model_dump(exclude_unset=True, exclude={"updated_by"})
+
+        if not changes:
+            raise HTTPException(
+                status_code= status.HTTP_400_BAD_REQUEST,
+                detail= "No field to update"
+            )
+
+        non_nullable_fields = {"first_name", "phone"}
+
+        for field, value in changes.items():
+            if field in non_nullable_fields and value is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail=f"{field} cannot be null"
+                )
+
+        try:
+            updated_user = userService.updateUser(user_id, user_to_update_body.updated_by, changes)
+            updated_user_response = UpdateUserResponse.model_validate(updated_user)
+            return {"Updated User" : updated_user_response}
+
+        except user_exceptions.UserDoesnotExistException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=str(e)
+            )
+
+        except user_exceptions.UnauthorizedException as e:
+            raise HTTPException(
+                status_code= status.HTTP_403_FORBIDDEN,
+                detail=str(e)
+            )
+
+        except Exception :
+            logger.exception("Unexpected error while updating user")
+            raise
+        
     return router
 
         
