@@ -8,4 +8,4 @@ class UpdateUserRequest(BaseModel):
     last_name : str | None = Field(default=None, min_length=3, max_length=20)
     phone: str | None = Field( default = None, pattern=r"^[6-9]\d{9}$")
     email: EmailStr | None = None
-    dob : date
+    dob : date | None = None
