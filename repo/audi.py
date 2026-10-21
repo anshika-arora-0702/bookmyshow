@@ -32,7 +32,7 @@ class AudiRepo:
                       cinema_id = audi.cinema_id, 
                       row_count = audi.row_count,  
                       column_count = audi.column_count, 
-                      added_by = audi.added_by,
+                      user_id= audi.added_by,
                       type = audi.type,
                       screen_num = audi.screen_num
                       )

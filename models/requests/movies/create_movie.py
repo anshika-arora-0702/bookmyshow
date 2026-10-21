@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel,UUID4, Field
 from datetime import date
 
 class CreateMovieRequest(BaseModel):
@@ -7,10 +7,7 @@ class CreateMovieRequest(BaseModel):
         len = 100
     )
 
-    user_id:str = Field(
-        min_length=36,
-        max_length=36
-    )
+    user_id:UUID4
 
     poster:str | None = None
 

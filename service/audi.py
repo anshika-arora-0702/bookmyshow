@@ -1,9 +1,11 @@
+from models.domain.audis.audi import Audi
+
 class AudiService():
 
     def __init__(self, audiRepo):
         self.audiRepo = audiRepo
 
-    def createAudi(self, new_audi):
+    def createAudi(self, new_audi:Audi):
 
         if new_audi.id == None:
             raise ValueError("Error in creating audi id")

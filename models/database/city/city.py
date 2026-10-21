@@ -8,7 +8,8 @@ class City(Base):
     id =  Column(
         Integer,
         primary_key=True,
-        nullable=False
+        nullable=False,
+        autoincrement=True
     )
 
     name = Column(

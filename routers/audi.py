@@ -1,6 +1,10 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 
+import logging
+logger = logging.getLogger(__name__)
+
 from exceptions import audi_exceptions
+from exceptions import user_exceptions
 
 from models.requests.audis.create_audi import CreateAudiRequest
 from models.requests.audis.delete_audi import DeleteAudiRequest
@@ -32,7 +36,7 @@ def createAudiRouter():
                         screen_num= new_audi_body.screen_num, 
                         row_count=new_audi_body.row_count, 
                         column_count=new_audi_body.column_count,
-                        type=new_audi_body.type
+                        type=new_audi_body.type,
                         )
 
         try:
@@ -43,6 +47,25 @@ def createAudiRouter():
         except audi_exceptions.AudiAlreadyExists as e:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, 
+                detail=str(e)
+            )
+
+        except user_exceptions.UserDoesnotExistException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=str(e)
+            )
+
+        except user_exceptions.UnauthorizedException as e:
+            raise HTTPException(
+                status_code= status.HTTP_403_FORBIDDEN,
+                detail=str(e)
+            )
+
+        except Exception as e:
+            logger.exception("Unexpected error while updating audi")
+            raise HTTPException(
+                status_code= status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
 

@@ -1,14 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, UUID4, Field
 
 class CreateCinemaRequest(BaseModel):
 
     name:str
     address:str | None = None
-    user_id:str = Field(
-        min_length=36,
-        max_length=36
-    )
-
+    user_id:UUID4
     city:int = Field(
         ge = 1
     )

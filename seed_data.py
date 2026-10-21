@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 
 from database import Engine, SessionLocal
 from models.database.users.user import User
-from models.database.cinemas.city import City
+from models.database.city.city import City
 from models.database.cinemas.cinema import Cinema
 import utils.getId as getId
 

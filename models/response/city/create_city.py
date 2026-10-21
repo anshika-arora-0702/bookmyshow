@@ -1,8 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 
-class CityCreateResponse(BaseModel):
+class CreateCityResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id:str
+    id:int
     name:str
