@@ -27,7 +27,8 @@ class UserRepo:
                       last_name = user.last_name,
                       created_at = datetime.now(timezone.utc),
                       updated_at = datetime.now(timezone.utc),
-                      role = UserRole.USER
+                      role = user.role,
+                      hashed_password = user.password
                       )
 
     def _user_to_domain(self,user:UserDB) -> UserDomain:
@@ -38,7 +39,8 @@ class UserRepo:
                       phone = user.phone,
                       first_name = user.first_name,
                       last_name = user.last_name,
-                      role = user.role
+                      role = user.role,
+                      password= user.hashed_password
                       )
 
     def createUser(self, user_to_create_domain:UserDomain):

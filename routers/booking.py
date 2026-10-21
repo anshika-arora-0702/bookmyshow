@@ -17,7 +17,7 @@ from models.response.bookings.create_booking import CreateBookingResponse
 from models.response.bookings.fetch_booking import FetchBookingResponse
 from models.response.bookings.cancel_booking import CancelBookingResponse
 
-import utils 
+import utils.getId as getId 
 from datetime import datetime, timezone
 
 from service.booking import BookingService
@@ -29,12 +29,12 @@ def createBookingRouter():
     @router.post("/createBooking")
     async def create_booking(booking_to_create_body:CreateBookingRequest, bookingService:BookingService = Depends(create_booking_service)):
 
-        payment = Payment(id = utils.getRandomId(),
+        payment = Payment(id = getId.getRandomId(),
                           amount = booking_to_create_body.payment_details.amount,
                           mode = booking_to_create_body.payment_details.mode,
                           status= PaymentStatus.PENDING)
         
-        new_booking = Booking(id = utils.getRandomId(), 
+        new_booking = Booking(id = getId.getRandomId(), 
                         user_id = booking_to_create_body.user_id, 
                         status = BookingStatus.PENDING,
                         payment_id= payment.id,

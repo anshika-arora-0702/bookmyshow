@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date, UUID, DateTime
+from sqlalchemy import Column, Integer, String, Date, UUID, DateTime, Enum
 from models.database.base import Base
+from models.database.users.user_role import UserRole
 
 class User(Base):
 
@@ -11,13 +12,18 @@ class User(Base):
         nullable=False
     )
 
+    hashed_password = Column(
+        String(255),
+        nullable=True
+    )
+
     first_name = Column(
         String, 
         nullable=False 
     )
 
     role = Column(
-        String, 
+        Enum(UserRole, name = "user_role"), 
         nullable=False 
     )
 
@@ -52,3 +58,4 @@ class User(Base):
         DateTime(timezone=True), 
         nullable=False
     )
+

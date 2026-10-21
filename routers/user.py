@@ -21,7 +21,7 @@ from models.response.users.delete_user import DeleteUserResponse
 from models.response.users.fetch_user import FetchUserResponse
 from models.response.users.update_user import UpdateUserResponse
 
-import utils 
+import utils.getId as getId 
 
 from service.user import UserService
 from dependency import create_user_service
@@ -35,13 +35,14 @@ def createUserRouter():
     @router.post("/createUser")
     async def create_user(new_user_body:CreateUserRequest, userService:UserService = Depends(create_user_service)):
 
-        new_user = User(id = utils.getRandomId(),
+        new_user = User(id = getId.getRandomId(),
                         first_name= new_user_body.first_name,
                         last_name= new_user_body.last_name,
-                        role = UserRole.USER,
                         phone = new_user_body.phone,
                         email= new_user_body.email,
-                        dob= new_user_body.dob
+                        dob= new_user_body.dob,
+                        password = new_user_body.password,
+                        role = UserRole.USER
                         )
 
         try:
@@ -50,8 +51,7 @@ def createUserRouter():
             return {"Created User" : created_user_response}
 
         except Exception as e:
-            # print(f"error while creating user: {e}")
-            # traceback.print_exc()
+            traceback.print_exc()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, 
                 detail=str(e)
@@ -60,7 +60,7 @@ def createUserRouter():
     @router.post("/createAdmin")
     async def create_admin(new_admin_body:CreateAdminRequest, userService:UserService = Depends(create_user_service)):
 
-        new_user = User(id = utils.getRandomId(),
+        new_user = User(id = getId.getRandomId(),
                         first_name= new_admin_body.first_name,
                         last_name= new_admin_body.last_name,
                         role = UserRole.ADMIN,
@@ -83,7 +83,7 @@ def createUserRouter():
     @router.post("/createSuperAdmin")
     async def create_super_admin(new_super_admin_body:CreateSuperAdminRequest, userService:UserService = Depends(create_user_service)):
 
-        new_user = User(id = utils.getRandomId(),
+        new_user = User(id = getId.getRandomId(),
                         first_name= new_super_admin_body.first_name,
                         last_name= new_super_admin_body.last_name,
                         role = UserRole.SUPER_ADMIN,

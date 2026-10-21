@@ -1,4 +1,4 @@
-import utils
+import utils.getId as getId
 
 class Show:
 

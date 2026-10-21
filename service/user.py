@@ -1,3 +1,5 @@
+from utils.password import hash_password
+
 class UserService():
 
     def __init__(self, userRepo):
@@ -13,6 +15,12 @@ class UserService():
         
         if new_user.phone == None:
             raise ValueError("User phone number required")
+        
+        if new_user.password == None:
+            raise ValueError("User password required")
+
+        hashed_password = hash_password(new_user.password)
+        new_user.password = hashed_password
 
         created_user = self.userRepo.createUser(new_user)
         return created_user
@@ -83,6 +91,9 @@ class UserService():
         if user_id == None:
             raise ValueError("Id required")
 
+        if updated_by == None:
+            raise ValueError("Updated by id is required")
+        
         if updated_by == None:
             raise ValueError("Updated by id is required")
 

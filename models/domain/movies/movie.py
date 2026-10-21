@@ -1,4 +1,4 @@
-import utils
+import utils.getId as getId
 from models.response.movies.create_movie import CreateMovieResponse
 
 class Movie:

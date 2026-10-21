@@ -15,7 +15,7 @@ from models.response.audis.fetch_audi import FetchAudiResponse
 from models.response.audis.update_audi import UpdateAudiResponse
 
 
-import utils 
+import utils.getId as getId 
 
 from service.audi import AudiService
 from dependency import create_audi_service
@@ -26,7 +26,7 @@ def createAudiRouter():
     @router.post("/createAudi")
     async def create_audi(new_audi_body:CreateAudiRequest, audiService:AudiService = Depends(create_audi_service)):
 
-        new_audi = Audi(id = utils.getRandomId(), 
+        new_audi = Audi(id = getId.getRandomId(), 
                         user_id = new_audi_body.user_id, 
                         cinema_id=new_audi_body.cinema_id, 
                         screen_num= new_audi_body.screen_num, 

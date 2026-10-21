@@ -4,7 +4,7 @@ from database import Engine, SessionLocal
 from models.database.users.user import User
 from models.database.cinemas.city import City
 from models.database.cinemas.cinema import Cinema
-import utils
+import utils.getId as getId
 
 
 SEED_USERS = [
@@ -171,7 +171,7 @@ def seed_users():
             if existing_user is None:
                 users.append(
                     User(
-                        id=utils.getRandomId(),
+                        id=getId.getRandomId(),
                         **user_data,
                         created_at=now,
                         updated_at=now,
@@ -243,7 +243,7 @@ def seed_cinemas():
             if existing_cinema is None:
                 cinemas.append(
                     Cinema(
-                        id = utils.getRandomId(),
+                        id = getId.getRandomId(),
                         **cinema_data,
                         created_at=now,
                         updated_at=now,

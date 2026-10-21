@@ -1,11 +1,11 @@
-import utils
+import utils.getId as getId
 
 class Seat:
 
     def __init__(self, id, audi_id, column_num, row_char, type, added_by):
 
         if id == None:
-            self.id = utils.getRandomId()
+            self.id = getId.getRandomId()
 
         else:
             self.id = id

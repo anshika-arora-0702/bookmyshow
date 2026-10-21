@@ -1,5 +1,5 @@
 from models.database.bookings.booking_status import BookingStatus
-import utils
+import utils.getId as getId
 
 class Booking:
 
@@ -14,7 +14,7 @@ class Booking:
                  status = BookingStatus.PENDING
                  ):
 
-        self.id = id or utils.getRandomId()
+        self.id = id or getId.getRandomId()
         self.user_id = user_id
         self.payment_id = payment_id
         self.seat_ids = seat_ids

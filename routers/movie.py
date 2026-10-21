@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from fastapi import Depends
-import utils
+import utils.getId as getId
 
 from service.movie import MovieService
 from dependency import create_movie_service
@@ -15,7 +15,7 @@ def createMovieRouter():
 
     @router.post("/")
     async def create_movie(movie: CreateMovieRequest, movieService:MovieService = Depends(create_movie_service())):
-        new_movie = Movie(id = utils.getRandomId(), name = movie.name, added_by= movie.added_by, poster = movie.poster, runtime_in_sec=movie.runtime_in_sec, release_date=movie.release_date, details=movie.details)
+        new_movie = Movie(id = getId.getRandomId(), name = movie.name, added_by= movie.added_by, poster = movie.poster, runtime_in_sec=movie.runtime_in_sec, release_date=movie.release_date, details=movie.details)
         created_movie = movieService.createMovie(new_movie)
         return created_movie.to_create_movie_response()
 

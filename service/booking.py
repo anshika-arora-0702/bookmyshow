@@ -3,7 +3,7 @@ from models.domain.payments.payment import Payment as PaymentDomain
 from models.database.payments.payment_status import PaymentStatus
 from models.requests.bookings.cancel_booking import CancelBookingRequest
 
-import utils
+import utils.getId as getId
 
 from repo.booking import BookingRepo
 from service.payment import PaymentService

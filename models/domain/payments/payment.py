@@ -1,11 +1,11 @@
-import utils
+import utils.getId as getId
 
 class Payment:
 
     def __init__(self, id, amount, status, mode):
 
         if id == None:
-            self.id = utils.getRandomId()
+            self.id = getId.getRandomId()
 
         else:
             self.id = id
