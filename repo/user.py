@@ -58,27 +58,6 @@ class UserRepo:
         except Exception :
             self.db_session.rollback()
             raise user_exceptions.UserException()
-        
-    def createAdmin(self, admin_to_create_domain:UserDomain, created_by: UUID4):
-
-        if self.db_session.get(UserDB,admin_to_create_domain.id) != None:
-            raise user_exceptions.UserAlreadyExistsException(admin_to_create_domain.id)
-
-        created_by_role = self.db_session.get(UserDB, created_by).role
-
-        if (created_by_role == UserRole.USER) or (created_by_role == UserRole.ADMIN):
-            raise user_exceptions.UnauthorizedException("admin","create") 
-
-        try:
-            admin_to_create_db = self._user_to_db(admin_to_create_domain)
-            self.db_session.add(admin_to_create_db)
-            self.db_session.commit()
-            self.db_session.refresh(admin_to_create_db)
-            return self._user_to_domain(admin_to_create_db)
-
-        except Exception :
-            self.db_session.rollback()
-            raise user_exceptions.UserException()
 
     def fetchUser(self, user_to_fetch: FetchUserRequest):
                 
@@ -178,6 +157,40 @@ class UserRepo:
         except IntegrityError as e:
             self.db_session.rollback()
             raise user_exceptions.UserContactAlreadyExistsException() from e
+
+        except Exception as e :
+            self.db_session.rollback()
+            raise user_exceptions.UserException() from e
+        
+    def updateRole(self, user_id, updated_by, new_role):
+
+        user_to_update_db = self.db_session.get(UserDB, user_id)
+        if user_to_update_db == None:
+            raise user_exceptions.UserDoesnotExistException(user_id)
+
+        updated_by_db = self.db_session.get(UserDB, updated_by)
+        if updated_by_db == None:
+            raise user_exceptions.UserDoesnotExistException(updated_by)
+
+
+        if user_to_update_db.role == UserRole.USER:
+            if not updated_by_db.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
+                raise user_exceptions.UnauthorizedException("User", "update")
+
+        elif user_to_update_db.role == UserRole.ADMIN:
+            if not updated_by_db.role == UserRole.SUPER_ADMIN: 
+                raise user_exceptions.UnauthorizedException("Admin", "update")
+
+        else :
+            raise user_exceptions.UnauthorizedException("Super Admin", "update")
+        
+        user_to_update_db.role = new_role
+        user_to_update_db.updated_at = datetime.now(timezone.utc)
+
+        try:
+            self.db_session.commit()
+            self.db_session.refresh(user_to_update_db)
+            return self._user_to_domain(user_to_update_db)
 
         except Exception as e :
             self.db_session.rollback()

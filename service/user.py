@@ -24,40 +24,6 @@ class UserService():
 
         created_user = self.userRepo.createUser(new_user)
         return created_user
-    
-    def createAdmin(self, new_admin, created_by):
-
-        if new_admin.id == None:
-            raise ValueError("Error in creating user id")
-        
-        if new_admin.first_name == None:
-            raise ValueError("User First Name required")
-        
-        if new_admin.phone == None:
-            raise ValueError("User phone number required")
-        
-        if created_by == None:
-            raise ValueError("Created by id required")
-
-        created_user = self.userRepo.createAdmin(new_admin  , created_by)
-        return created_user
-    
-    def createSuperAdmin(self, new_super_admin, created_by):
-
-        if new_super_admin.id == None:
-            raise ValueError("Error in creating user id")
-        
-        if new_super_admin.first_name == None:
-            raise ValueError("User First Name required")
-        
-        if new_super_admin.phone == None:
-            raise ValueError("User phone number required")
-        
-        if created_by == None:
-            raise ValueError("Created by id required")
-
-        created_user = self.userRepo.createAdmin(new_super_admin  , created_by)
-        return created_user
 
     def fetchUser(self, user_to_fetch):
 
@@ -93,10 +59,23 @@ class UserService():
 
         if updated_by == None:
             raise ValueError("Updated by id is required")
-        
-        if updated_by == None:
-            raise ValueError("Updated by id is required")
 
         updated_user = self.userRepo.updateUser(user_id, updated_by, changes)
+
+        return updated_user
+    
+    def updateRole(self, user_to_update_body, new_role):
+
+        if not new_role:
+            raise ValueError("No role provided")
+
+        if user_to_update_body.id == None:
+            raise ValueError("Id required")
+
+        if user_to_update_body.updated_by == None:
+            raise ValueError("Updated by id is required")
+    
+
+        updated_user = self.userRepo.updateRole(user_to_update_body.id, user_to_update_body.updated_by, new_role)
 
         return updated_user

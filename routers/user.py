@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import UUID4
+from models.database.users.user_role import UserRole
 
 import logging
 logger = logging.getLogger(__name__)
@@ -7,8 +8,7 @@ logger = logging.getLogger(__name__)
 from exceptions import user_exceptions
 
 from models.requests.users.create_user import CreateUserRequest
-from models.requests.users.create_admin import CreateAdminRequest
-from models.requests.users.create_super_admin import CreateSuperAdminRequest
+from models.requests.users.update_role import UpdateRoleRequest
 from models.requests.users.delete_user import DeleteUserRequest
 from models.requests.users.fetch_user import FetchUserRequest
 from models.requests.users.update_user import UpdateUserRequest
@@ -57,51 +57,36 @@ def createUserRouter():
                 detail=str(e)
             )
 
-    @router.post("/createAdmin")
-    async def create_admin(new_admin_body:CreateAdminRequest, userService:UserService = Depends(create_user_service)):
+    @router.patch("/updateRole")
+    async def update_role(update_role_body:UpdateRoleRequest, new_role : UserRole, userService:UserService = Depends(create_user_service)):
 
-        new_user = User(id = getId.getRandomId(),
-                        first_name= new_admin_body.first_name,
-                        last_name= new_admin_body.last_name,
-                        role = UserRole.ADMIN,
-                        phone = new_admin_body.phone,
-                        email= new_admin_body.email,
-                        dob= new_admin_body.dob
-                        )
+
+        if new_role is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail = "No role defined"
+            )
 
         try:
-            created_admin = userService.createAdmin(new_user, new_admin_body.created_by)
-            created_admin_response = CreateUserResponse.model_validate(created_admin)
-            return {"Created Admin" : created_admin_response}
+            updated_user = userService.updateRole(update_role_body, new_role)
+            updated_user_response = UpdateUserResponse.model_validate(updated_user)
+            return {"Updated User" : updated_user_response}
 
-        except Exception as e:
+        except user_exceptions.UserDoesnotExistException as e:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, 
+                status_code=status.HTTP_404_NOT_FOUND, 
                 detail=str(e)
             )
 
-    @router.post("/createSuperAdmin")
-    async def create_super_admin(new_super_admin_body:CreateSuperAdminRequest, userService:UserService = Depends(create_user_service)):
-
-        new_user = User(id = getId.getRandomId(),
-                        first_name= new_super_admin_body.first_name,
-                        last_name= new_super_admin_body.last_name,
-                        role = UserRole.SUPER_ADMIN,
-                        phone = new_super_admin_body.phone,
-                        email= new_super_admin_body.email,
-                        dob= new_super_admin_body.dob
-                        )
-
-        try:
-            created_super_admin = userService.createSuperAdmin(new_user, new_super_admin_body.created_by)
-            created_super_admin_response = CreateUserResponse.model_validate(created_super_admin)
-            return {"Created Super Admin" : created_super_admin_response}
-
-        except Exception as e:
+        except user_exceptions.UnauthorizedException as e:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, 
+                status_code= status.HTTP_403_FORBIDDEN,
                 detail=str(e)
             )
+
+        except Exception :
+            logger.exception("Unexpected error while updating user")
+            raise
 
     @router.post("/fetchUser")
     async def fetch_user(user_to_fetch_body:FetchUserRequest, userService:UserService = Depends(create_user_service)):
@@ -131,9 +116,9 @@ def createUserRouter():
                 detail=str(e)
             )
 
-    @router.patch("/updateUser/{user_id}")
-    async def update_user(user_id:UUID4, user_to_update_body:UpdateUserRequest, userService:UserService = Depends(create_user_service)):
-        changes = user_to_update_body.model_dump(exclude_unset=True, exclude={"updated_by"})
+    @router.patch("/updateUser")
+    async def update_user(user_to_update_body:UpdateUserRequest, updated_by:UUID4, userService:UserService = Depends(create_user_service)):
+        changes = user_to_update_body.model_dump(exclude_unset=True, exclude={"id"})
 
         if not changes:
             raise HTTPException(
@@ -151,7 +136,7 @@ def createUserRouter():
                 )
 
         try:
-            updated_user = userService.updateUser(user_id, user_to_update_body.updated_by, changes)
+            updated_user = userService.updateUser(user_to_update_body.id,updated_by, changes)
             updated_user_response = UpdateUserResponse.model_validate(updated_user)
             return {"Updated User" : updated_user_response}
 
