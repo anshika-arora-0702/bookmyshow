@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, Enum, UniqueConstraint
 from models.database.base import Base
 from models.database.audis.audi_type import AudiType
 
@@ -6,6 +6,10 @@ from models.database.audis.audi_type import AudiType
 class Audi(Base):
 
     __tablename__ = "audi"
+
+    __table_args__ = (
+        UniqueConstraint("cinema_id", "screen_num", name="uq_audi_cinema_screen"),
+    )
 
     id =  Column(
         UUID(as_uuid=True), 
@@ -15,7 +19,7 @@ class Audi(Base):
 
 
     added_by = Column(
-        String,
+        UUID(as_uuid=True),
         ForeignKey("user.id"),
         nullable=False
     )    

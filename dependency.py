@@ -6,6 +6,7 @@ from database import SessionLocal
 from repo.audi import AudiRepo
 from repo.booking import BookingRepo
 from repo.cinema import CinemaRepo
+from repo.city import CityRepo
 from repo.movie import MovieRepo
 from repo.payment import PaymentRepo
 from repo.seat import SeatRepo
@@ -15,6 +16,7 @@ from repo.user import UserRepo
 from service.audi import AudiService
 from service.booking import BookingService
 from service.cinema import CinemaService
+from service.city import CityService
 from service.movie import MovieService
 from service.payment import PaymentService
 from service.seat import SeatService
@@ -45,11 +47,13 @@ def create_booking_service(db:Session = Depends(get_db),
     bookingRepo = BookingRepo(db)
     return BookingService(bookingRepo, payment_service, db)
 
-
-
 def create_cinema_service(db:Session = Depends(get_db)):
     cinemaRepo = CinemaRepo(db)
     return CinemaService(cinemaRepo)
+
+def create_city_service(db:Session = Depends(get_db)):
+    cityRepo = CityRepo(db)
+    return CityService(cityRepo)
 
 def create_movie_service(db:Session = Depends(get_db)):
     movieRepo = MovieRepo(db)

@@ -9,7 +9,6 @@ from models.requests.users.delete_user import DeleteUserRequest
 from exceptions import user_exceptions
 from sqlalchemy.exc import IntegrityError
 
-from pydantic import UUID4
 from datetime import datetime,timezone
 
 class UserRepo:

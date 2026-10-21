@@ -10,11 +10,15 @@ from database import SessionLocal, Engine
 from routers.audi import createAudiRouter
 from routers.booking import createBookingRouter
 from routers.user import createUserRouter
+from routers.cinema import createCinemaRouter
+from routers.city import createCityRouter
+from routers.movie import createMovieRouter
+
+
 app = FastAPI()
 
-
-audi.Base.metadata.create_all(bind=Engine)
-booking.Base.metadata.create_all(bind = Engine)
+from models.database.base import Base
+Base.metadata.create_all(bind=Engine)
 
 app.include_router(
     createAudiRouter(),
@@ -32,4 +36,22 @@ app.include_router(
     createUserRouter(),
     prefix = "/user",
     tags = ["User Management"]
+)
+
+app.include_router(
+    createCinemaRouter(),
+    prefix="/cinema",
+    tags=["Cinema Management"]
+)
+
+app.include_router(
+    createCityRouter(),
+    prefix="/city",
+    tags=["City Management"]
+)
+
+app.include_router(
+    createMovieRouter(),
+    prefix ="/movie",
+    tags = ["Movie Management"]
 )
