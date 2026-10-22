@@ -29,12 +29,12 @@ class Movie(Base):
 
     runtime_in_sec = Column(
         Integer,
-        nullable=True
+        nullable=False
     )
 
     release_date = Column(
         Date,
-        nullable=True
+        nullable=False
     )
 
     details = Column(

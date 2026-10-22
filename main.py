@@ -13,6 +13,7 @@ from routers.user import createUserRouter
 from routers.cinema import createCinemaRouter
 from routers.city import createCityRouter
 from routers.movie import createMovieRouter
+from routers.show import createShowRouter
 
 
 app = FastAPI()
@@ -54,4 +55,10 @@ app.include_router(
     createMovieRouter(),
     prefix ="/movie",
     tags = ["Movie Management"]
+)
+
+app.include_router(
+    createShowRouter(),
+    prefix ="/show",
+    tags = ["Show Management"]
 )

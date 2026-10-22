@@ -4,6 +4,9 @@ class MovieService():
     def __init__(self, movieRepo):
         self.movieRepo = movieRepo
 
+    def _fetch_movie(self,movie_id):
+        return self.movieRepo._fetch_movie(movie_id)
+
     def createMovie(self, new_movie:Movie):
 
         if new_movie.id == None:

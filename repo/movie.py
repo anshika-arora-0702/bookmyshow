@@ -16,6 +16,13 @@ class MovieRepo:
     def __init__(self, db_session):
         self.db_session = db_session
 
+
+    def _fetch_movie(self,movie_id) -> MovieDomain:
+        movie = self.db_session.get(MovieDB, movie_id)
+        if movie is None:
+            raise movie_exceptions.MovieNotFoundException(movie_id)
+        return self._movie_to_domain(movie)
+
     def _movie_to_db(self,movie:MovieDomain) -> MovieDB:
 
         return MovieDB(id= movie.id,

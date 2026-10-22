@@ -11,12 +11,12 @@ class CreateMovieRequest(BaseModel):
 
     poster:str | None = None
 
-    runtime_in_sec:int | None = Field(
+    runtime_in_sec:int = Field(
         ge = 1,
-        le = 28800         
+        le = 14400       
     )
 
-    release_date:date | None = None
+    release_date:date 
 
     details:str | None = None
     

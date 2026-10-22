@@ -1,10 +1,29 @@
+from models.domain.shows.show import Show
+from models.domain.movies.movie import Movie
+from service.seat import SeatService
+from service.user import UserService
+from service.audi import AudiService
+from service.movie import MovieService
+from repo.show import ShowRepo
+
+from datetime import timedelta
+
+from exceptions import user_exceptions
+from exceptions import show_exceptions
+
+from sqlalchemy.exc import IntegrityError
+
 class ShowService():
 
-    def __init__(self, showRepo):
+    def __init__(self, showRepo:ShowRepo, seatService: SeatService, userService:UserService, audiService: AudiService,movieService: MovieService, db_session):
         self.showRepo = showRepo
+        self.db_session = db_session
+        self.seatService = seatService
+        self.userService = userService
+        self.audiService = audiService
+        self.movieService = movieService
 
-    #jab show add hoga tab uski seats bhi add hongi show seat availability mein
-    def createShow(self, new_show):
+    def _validate_show(self, new_show):
 
         if new_show.id == None:
             raise ValueError("Error in creating Show id")
@@ -24,8 +43,57 @@ class ShowService():
         if new_show.price == None:
             raise ValueError("Price required")
 
-        created_show = self.ShowRepo.createShow(new_show)
-        return created_show
+    def _fetch_audi(self, audi_id):
+        return self.audiService._fetch_audi(audi_id)
+
+    def _fetch_movie(self,movie_id):
+        return self.movieService._fetch_movie(movie_id)
+
+    def _is_superadmin(self, user_id):
+        return self.userService._is_superadmin(user_id)
+
+    def _validate_price(self, audi_id, price):
+            seat_types = set(self.seatService.fetchAudiSeatTypes(audi_id))
+            provided_types = set(price.keys())
+            missing_prices = seat_types - provided_types
+
+            if missing_prices:
+                raise ValueError(f"Missing prices for seat types: {missing_prices}")
+
+    def _validate_time(self, proposed_start_time, audi_id, movie:Movie):
+        if proposed_start_time.date() < movie.release_date:
+            raise ValueError("Cannot schedule a show before the movie's release date")
+
+        if movie.runtime_in_sec <= 0:
+            raise ValueError("Movie runtime must be set greater than zero")
+        proposed_end_time = proposed_start_time + timedelta(seconds=movie.runtime_in_sec)
+        self.showRepo._validate_time(audi_id, proposed_start_time, proposed_end_time)
+        return proposed_end_time
+
+
+    def createShow(self, new_show: Show):
+
+        self._validate_show(new_show)
+
+        try:
+
+            with self.db_session.begin():
+                audi = self._fetch_audi(new_show.audi_id)
+                movie = self._fetch_movie(new_show.movie_id)
+
+                if audi.user_id != new_show.added_by and not(self._is_superadmin(new_show.added_by)):
+                    raise user_exceptions.UnauthorizedException("Show" , "create")
+                
+                self._validate_price(audi.id, new_show.price)
+                end_time = self._validate_time(new_show.start_time,new_show.audi_id, movie)
+                created_show = self.showRepo.createShow(new_show, end_time)
+                seat_list = self.seatService.fetchAudiSeats(created_show.audi_id)
+                self.showRepo.createShowSeats(created_show.id, seat_list)
+
+            return created_show
+        
+        except IntegrityError as e:
+            raise show_exceptions.ShowIntegrityException() from e
 
     def fetchShow(self, showId):
 

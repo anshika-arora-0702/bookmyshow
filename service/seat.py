@@ -54,6 +54,12 @@ class SeatService():
         created_seat = self.seatRepo.createSeat(new_seat)
         return created_seat
 
+    def fetchAudiSeats(self, audi_id):
+        return self.seatRepo.fetchAudiSeats(audi_id)
+
+    def fetchAudiSeatTypes(self, audi_id):
+        return self.seatRepo.fetchAudiSeatTypes(audi_id)
+
     def fetchSeat(self, seatId):
 
         if seatId == None:

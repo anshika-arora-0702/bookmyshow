@@ -72,7 +72,11 @@ def create_audi_service(db:Session = Depends(get_db),
     audiRepo = AudiRepo(db)
     return AudiService(audiRepo, seat_service, user_service, cinema_service, db)
 
-def create_show_service(db:Session = Depends(get_db)):
+def create_show_service(db:Session = Depends(get_db),
+                        seat_service: SeatService = Depends(create_seat_service),
+                        user_service : UserService = Depends(create_user_service),
+                        audi_service: AudiService = Depends(create_audi_service),
+                        movie_service: MovieService = Depends(create_movie_service)):
     showRepo = ShowRepo(db)
-    return ShowService(showRepo)
+    return ShowService(showRepo, seat_service, user_service, audi_service,movie_service, db)
 
