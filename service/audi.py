@@ -23,8 +23,11 @@ class AudiService():
     def _fetch_cinema(self, cinema_id):
         return self.cinemaService._fetch_cinema(cinema_id)
 
-    def _is_admin(self, user_id):
-        return self.userService._is_admin(user_id)
+    # def _is_admin(self, user_id):
+    #     return self.userService._is_admin(user_id)
+
+    def _is_superadmin(self, user_id):
+        return self.userService._is_superadmin(user_id)
 
     def _validate_audi(self, new_audi:Audi):
 
@@ -64,7 +67,7 @@ class AudiService():
         
         with self.db_session.begin():
             cinema = self._fetch_cinema(new_audi.cinema_id)
-            if cinema.added_by != new_audi.user_id and not(self._is_admin(new_audi.user_id)):
+            if cinema.added_by != new_audi.user_id and not(self._is_superadmin(new_audi.user_id)):
                 raise user_exceptions.UnauthorizedException("Audi" , "create")
 
             created_audi = self.audiRepo.createAudi(new_audi)
@@ -76,7 +79,7 @@ class AudiService():
 
         with  self.db_session.begin():
             audi = self._fetch_audi(new_seat.audi_id)
-            if audi.user_id != user_id and not(self._is_admin(user_id)):
+            if audi.user_id != user_id and not(self._is_superadmin(user_id)):
                 raise user_exceptions.UnauthorizedException("Seat" , "create")
             created_seat = self.seatService.createSeat(new_seat, audi.column_count, audi.row_count)
 

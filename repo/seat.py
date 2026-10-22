@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from models.domain.seats.seat import Seat as SeatDomain
 from models.database.seats.seat import Seat as SeatDB
 from models.database.users.user import User as UserDB
@@ -46,3 +48,13 @@ class SeatRepo:
 
         except Exception as e:
             raise seat_exceptions.SeatException() from e
+
+    def fetchAudiSeats(self,audi_id):
+        seat_ids = self.db_session.scalars(select(SeatDB.id).where(SeatDB.audi_id == audi_id)).all()
+        if not seat_ids:
+            raise ValueError(f"No seats found for auditorium {audi_id}")
+        return seat_ids
+
+    def fetchAudiSeatTypes(self, audi_id):
+        seat_types = self.db_session.scalars(select(SeatDB.type).where(SeatDB.audi_id == audi_id).distinct()).all()
+        return seat_types

@@ -1,24 +1,14 @@
-from pydantic import BaseModel, Field, PositiveFloat
-from datetime import time
+from pydantic import BaseModel, UUID4,  PositiveFloat
 
-class ShowCreateRequest(BaseModel):
+from datetime import datetime
+from models.database.seats.seat_type import SeatType
 
-    audi_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
+class CreateShowRequest(BaseModel):
 
-    movie_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    user_id:str = Field(
-        min_length= 36,
-        max_length= 36
-    )
-
-    start_time:time
-    price: dict[int, PositiveFloat]
+    audi_id:UUID4
+    movie_id: UUID4
+    user_id:UUID4
+    start_time: datetime
+    price: dict[SeatType, PositiveFloat]
 
     

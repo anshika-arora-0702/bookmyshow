@@ -5,6 +5,12 @@ class Show(Base):
 
     __tablename__ = "show"
 
+    from sqlalchemy import Index
+
+    __table_args__ = (
+        Index("ix_show_audi_start_time", "audi_id", "start_time"),
+    )
+
     id =  Column(
         UUID(as_uuid=True), 
         primary_key=True, 
@@ -28,6 +34,11 @@ class Show(Base):
         nullable=False
     )
 
+    end_time = Column(
+        DateTime(timezone=True), 
+        nullable= False
+    )
+
     price = Column(
         JSON, 
         nullable=False
@@ -41,4 +52,10 @@ class Show(Base):
     updated_at = Column(
         DateTime(timezone=True), 
         nullable=False
+    )
+
+    added_by = Column(
+        UUID(as_uuid=True),
+        ForeignKey("user.id"),
+        nullable= False,
     )
