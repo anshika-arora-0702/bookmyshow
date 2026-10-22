@@ -11,12 +11,6 @@ class Show(Base):
         nullable=False
     )
 
-    added_by = Column(
-        UUID(as_uuid=True),
-        ForeignKey("user.id"),
-        nullable= False,
-    )  
-
     audi_id = Column(
         UUID(as_uuid=True),
         ForeignKey("audi.id"), 

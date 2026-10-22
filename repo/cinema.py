@@ -32,6 +32,16 @@ class CinemaRepo:
                             address=cinema.address,
                             city=cinema.city) 
 
+    def _fetch_cinema(self, cinema_id):
+        if cinema_id is None:
+            raise ValueError("No cinema_id provided")
+        
+        cinema = self.db_session.get(CinemaDB,cinema_id)
+        if cinema is None:
+            raise cinema_exceptions.CinemaNotFoundException(cinema_id)
+        
+        return self._cinema_to_domain(cinema)
+
     def createCinema(self, cinema_to_create_domain: CinemaDomain):
         user = self.db_session.get(UserDB,cinema_to_create_domain.added_by)
 
@@ -39,7 +49,7 @@ class CinemaRepo:
             raise user_exceptions.UserDoesnotExistException()
 
         if user.role not in ('SUPER_ADMIN', 'ADMIN'):
-            raise user_exceptions.UnauthorizedException("City", "create")
+            raise user_exceptions.UnauthorizedException("Cinema", "create")
         
         try:
             cinema_to_create_db = self._cinema_to_db(cinema_to_create_domain)

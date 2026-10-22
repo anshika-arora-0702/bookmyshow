@@ -1,9 +1,10 @@
+from models.domain.movies.movie import Movie
 class MovieService():
 
     def __init__(self, movieRepo):
         self.movieRepo = movieRepo
 
-    def createMovie(self, new_movie):
+    def createMovie(self, new_movie:Movie):
 
         if new_movie.id == None:
             raise ValueError("Error in creating movie id")

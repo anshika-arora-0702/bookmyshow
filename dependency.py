@@ -33,9 +33,11 @@ def get_db():
     finally:
         db.close()
 
-def create_audi_service(db:Session = Depends(get_db)):
-    audiRepo = AudiRepo(db)
-    return AudiService(audiRepo)
+def create_user_service(db:Session = Depends(get_db)):
+    userRepo = UserRepo(db)
+    return UserService(userRepo)
+
+
 
 
 def create_payment_service(db:Session = Depends(get_db)):
@@ -59,15 +61,18 @@ def create_movie_service(db:Session = Depends(get_db)):
     movieRepo = MovieRepo(db)
     return MovieService(movieRepo)
 
-
 def create_seat_service(db:Session = Depends(get_db)):
     seatRepo = SeatRepo(db)
     return SeatService(seatRepo)
+
+def create_audi_service(db:Session = Depends(get_db), 
+                        seat_service : SeatService = Depends(create_seat_service),
+                        user_service : UserService = Depends(create_user_service),
+                        cinema_service: CinemaService = Depends(create_cinema_service)):
+    audiRepo = AudiRepo(db)
+    return AudiService(audiRepo, seat_service, user_service, cinema_service, db)
 
 def create_show_service(db:Session = Depends(get_db)):
     showRepo = ShowRepo(db)
     return ShowService(showRepo)
 
-def create_user_service(db:Session = Depends(get_db)):
-    userRepo = UserRepo(db)
-    return UserService(userRepo)

@@ -5,6 +5,9 @@ class UserService():
     def __init__(self, userRepo):
         self.userRepo = userRepo
 
+    def _is_admin(self, user_id):
+        return self.userRepo._is_admin(user_id)
+
     def createUser(self, new_user):
 
         if new_user.id == None:

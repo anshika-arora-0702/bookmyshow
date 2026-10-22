@@ -16,6 +16,11 @@ class UserRepo:
     def __init__(self, db_session):
         self.db_session = db_session
 
+    def _is_admin(self, user_id):
+        user = self.db_session.get(UserDB, user_id)
+        if user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+            return False
+
     def _user_to_db(self,user:UserDomain) -> UserDB:
 
         return UserDB(id = user.id,

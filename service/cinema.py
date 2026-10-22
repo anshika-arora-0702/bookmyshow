@@ -4,6 +4,9 @@ class CinemaService():
     def __init__(self, cinemaRepo):
         self.cinemaRepo = cinemaRepo
 
+    def _fetch_cinema(self,cinema_id):
+        return self.cinemaRepo._fetch_cinema(cinema_id)
+
     def createCinema(self, new_cinema):
 
         if new_cinema.id == None:

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
+from sqlalchemy import Column, String, Integer, UUID, DateTime, ForeignKey, Enum, UniqueConstraint, PrimaryKeyConstraint
+from models.database.seats.seat_type import SeatType
 from models.database.base import Base
 
 class Seat(Base):
@@ -38,15 +39,8 @@ class Seat(Base):
     )
 
     type = Column(
-        Integer, 
-        ForeignKey("seat_type.id"),
-        nullable = False
-    )
-
-    added_by = Column(
-        UUID(as_uuid=True),
-        ForeignKey("user.id"),
-        nullable= False,
+        Enum(SeatType, name="seat_type"),
+        nullable=False
     )
 
     created_at = Column(
