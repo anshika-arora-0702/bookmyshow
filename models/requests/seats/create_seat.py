@@ -1,7 +1,7 @@
-from pydantic import BaseModel, UUID4, Field
+from pydantic import BaseModel, UUID4
 from models.database.seats.seat_type import SeatType
 
-class SeatCreateRequest(BaseModel):
+class CreateSeatRequest(BaseModel):
 
     audi_id: UUID4
     column_num:int

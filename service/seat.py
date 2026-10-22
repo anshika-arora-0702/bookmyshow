@@ -1,9 +1,16 @@
+from utils.row_label import row_label
+from utils.getId import getRandomId
+
+from models.domain.seats.seat import Seat as SeatDomain
+from models.database.seats.seat_type import SeatType
+from models.database.audis.audi import Audi as AudiDB
+
 class SeatService():
 
     def __init__(self, seatRepo):
         self.seatRepo = seatRepo
 
-    def createSeat(self, new_seat):
+    def _validate_seat(self, new_seat):
 
         if new_seat.id == None:
             raise ValueError("Error in creating seat id")
@@ -19,10 +26,24 @@ class SeatService():
         
         if new_seat.type == None:
             raise ValueError("Seat type required")
-        
-        if new_seat.added_by == None:
-            raise ValueError("User id required")
 
+    def createAudiSeats(self, audi_id, column_count, row_count):
+            
+            for row_index in range(1,row_count+1):
+                row_char = row_label(row_index)
+
+                for column_num in range(1, column_count + 1):
+                    seat = SeatDomain(id = getRandomId(),
+                                audi_id = audi_id,
+                                column_num = column_num,
+                                row_char = row_char,
+                                type = SeatType.NORMAL,
+                                )
+                    self.createSeat(seat)
+
+    def createSeat(self, new_seat:SeatDomain ):
+        
+        self._validate_seat(new_seat)
         created_seat = self.seatRepo.createSeat(new_seat)
         return created_seat
 
@@ -58,55 +79,3 @@ class SeatService():
         updated_seat = self.seatRepo.updateSeat(seat_to_update)
 
         return updated_seat
-
-    def createSeatType(self, new_seat_type):
-
-        if new_seat_type.id == None:
-            raise ValueError("Seat Type id required")
-        
-        if new_seat_type.added_by == None:
-            raise ValueError("User id required")
-        
-        if new_seat_type.name == None:
-            raise ValueError("Seat Type name required")
-
-        created_seat_type = self.seatRepo.createSeatType(new_seat_type)
-        return created_seat_type
-
-    def fetchSeatType(self, seat_type):
-
-        if seat_type.id == None:
-            raise ValueError("Seat Type id required")
-
-        if seat_type.user_id == None:
-            raise ValueError("User id required")
-
-        fetched_seat_type = self.seatRepo.fetchSeatType(seat_type)
-
-        return fetched_seat_type
-
-#if we delete what will happen to existing records ??? -> if none of the seats uses it, it will be deleted else db will throw an error
-
-    def deleteSeatType(self, seat_type_to_delete):
-
-        if seat_type_to_delete.id == None:
-            raise ValueError("Seat Type id required")
-        
-        if seat_type_to_delete.user_id == None:
-            raise ValueError("User id required")
-
-        deleted_seat_type = self.seatRepo.deleteSeatType(seat_type_to_delete)
-
-        return deleted_seat_type
-
-    def updateSeatType(self, seat_type_to_update):
-
-        if seat_type_to_update.id == None:
-            raise ValueError("Seat Type id required")
-
-        if seat_type_to_update.user_id == None:
-            raise ValueError("User id required")
-
-        updated_seat_type = self.seatRepo.updateSeatType(seat_type_to_update)
-
-        return updated_seat_type
