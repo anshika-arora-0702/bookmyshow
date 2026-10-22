@@ -53,7 +53,7 @@ class AudiService():
 
         self._validate_audi(new_audi)
 
-        ''' Whu cinema before with block giving error as  {
+        ''' Why cinema before with block giving error as  {
                 "detail": "A transaction is already begun on this Session."
                 }
         cinema = self._fetch_cinema(new_audi.cinema_id)
@@ -73,11 +73,14 @@ class AudiService():
         return created_audi
 
     def createSeat(self,new_seat:Seat, user_id):
-        audi = self._fetch_audi(new_seat.audi_id)
-        if audi.user_id != user_id and not(self._is_admin(user_id)):
-            raise user_exceptions.UnauthorizedException("Seat" , "create")
 
-        return self.seatService.createSeat(new_seat, user_id)
+        with  self.db_session.begin():
+            audi = self._fetch_audi(new_seat.audi_id)
+            if audi.user_id != user_id and not(self._is_admin(user_id)):
+                raise user_exceptions.UnauthorizedException("Seat" , "create")
+            created_seat = self.seatService.createSeat(new_seat, audi.column_count, audi.row_count)
+
+        return created_seat
     
 
     def fetchAudi(self, audi_to_fetch):

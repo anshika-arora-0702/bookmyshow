@@ -1,4 +1,5 @@
 from utils.row_label import row_label
+from utils.row_number import row_number
 from utils.getId import getRandomId
 
 from models.domain.seats.seat import Seat as SeatDomain
@@ -10,7 +11,7 @@ class SeatService():
     def __init__(self, seatRepo):
         self.seatRepo = seatRepo
 
-    def _validate_seat(self, new_seat):
+    def _validate_seat(self, new_seat, audi_column_count, audi_row_count):
 
         if new_seat.id == None:
             raise ValueError("Error in creating seat id")
@@ -21,8 +22,14 @@ class SeatService():
         if new_seat.row_char == None:
             raise ValueError("Row char required")
         
+        if row_number(new_seat.row_char) > audi_row_count:
+            raise ValueError("Row char greater than max rows in audi")
+        
         if new_seat.column_num == None:
             raise ValueError("Column num required")
+        
+        if new_seat.column_num > audi_column_count:
+            raise ValueError("Column num greater than max column in audi")
         
         if new_seat.type == None:
             raise ValueError("Seat type required")
@@ -39,11 +46,11 @@ class SeatService():
                                 row_char = row_char,
                                 type = SeatType.NORMAL,
                                 )
-                    self.createSeat(seat)
+                    self.createSeat(seat, column_count, row_count )
 
-    def createSeat(self, new_seat:SeatDomain ):
+    def createSeat(self, new_seat:SeatDomain, audi_column_count, audi_row_count ):
         
-        self._validate_seat(new_seat)
+        self._validate_seat(new_seat, audi_column_count, audi_row_count)
         created_seat = self.seatRepo.createSeat(new_seat)
         return created_seat
 

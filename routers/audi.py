@@ -5,6 +5,7 @@ logger = logging.getLogger(__name__)
 
 from exceptions import audi_exceptions
 from exceptions import user_exceptions
+from exceptions import seat_exceptions
 
 from models.requests.audis.create_audi import CreateAudiRequest
 from models.requests.seats.create_seat import CreateSeatRequest
@@ -86,35 +87,35 @@ def createAudiRouter():
 
         user_id = new_seat_body.user_id
 
-        # try:
-        created_seat = audiService.createSeat(new_seat, user_id)
-        created_seat_response = CreateSeatResponse.model_validate(created_seat)
-        return {"Created Seat" : created_seat_response}
+        try:
+            created_seat = audiService.createSeat(new_seat, user_id)
+            created_seat_response = CreateSeatResponse.model_validate(created_seat)
+            return {"Created Seat" : created_seat_response}
 
-        # except audi_exceptions.AudiAlreadyExists as e:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_409_CONFLICT, 
-        #         detail=str(e)
-        #     )
+        except seat_exceptions.SeatIntegrityException as e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, 
+                detail=str(e)
+            )
 
-        # except user_exceptions.UserDoesnotExistException as e:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_404_NOT_FOUND, 
-        #         detail=str(e)
-        #     )
+        except user_exceptions.UserDoesnotExistException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=str(e)
+            )
 
-        # except user_exceptions.UnauthorizedException as e:
-        #     raise HTTPException(
-        #         status_code= status.HTTP_403_FORBIDDEN,
-        #         detail=str(e)
-        #     )
+        except user_exceptions.UnauthorizedException as e:
+            raise HTTPException(
+                status_code= status.HTTP_403_FORBIDDEN,
+                detail=str(e)
+            )
 
-        # except Exception as e:
-        #     logger.exception("Unexpected error while updating audi")
-        #     raise HTTPException(
-        #         status_code= status.HTTP_400_BAD_REQUEST,
-        #         detail=str(e)
-        #     )
+        except Exception as e:
+            logger.exception("Unexpected error while updating audi")
+            raise HTTPException(
+                status_code= status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
          
     return router
 
