@@ -34,32 +34,41 @@ class PaymentRepo:
         try:
             payment_db = self._payment_to_db(new_payment)
             self.db_session.add(payment_db)
-            self.db_session.commit()
-            self.db_session.refresh(payment_db)
+            self.db_session.flush()
             return self._payment_to_domain(payment_db)
 
         except Exception :
-            self.db_session.rollback()
             raise PaymentException()
 
-    def markSuccessful(self, payment_id):
+    def markSuccessful(self, payment_id): 
 
         try:
-            payment = self.db_session.get(PaymentDB, payment_id)
+            payment:PaymentDB = self.db_session.get(PaymentDB, payment_id)
             payment.status = PaymentStatus.SUCCESSFUL
-            self.db_session.commit()
+            payment.updated_at = datetime.now(timezone.utc)
+            self.db_session.flush()
 
         except:
-            self.db_session.rollback()
             raise PaymentException()
         
     def markFailed(self, payment_id):
 
         try:
-            payment = self.db_session.get(PaymentDB, payment_id)
+            payment : PaymentDB= self.db_session.get(PaymentDB, payment_id)
             payment.status = PaymentStatus.FAILED
-            self.db_session.commit()
+            payment.updated_at = datetime.now(timezone.utc)
+            self.db_session.flush()
 
         except:
-            self.db_session.rollback()
+            raise PaymentException()
+        
+    def markUnknown(self, payment_id):
+
+        try:
+            payment : PaymentDB= self.db_session.get(PaymentDB, payment_id)
+            payment.status = PaymentStatus.UNKNOWN
+            payment.updated_at = datetime.now(timezone.utc)
+            self.db_session.flush()
+
+        except:
             raise PaymentException()

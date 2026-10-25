@@ -5,13 +5,14 @@ from utils.getId import getRandomId
 from models.domain.seats.seat import Seat as SeatDomain
 from models.database.seats.seat_type import SeatType
 from models.database.audis.audi import Audi as AudiDB
+from repo.seat import SeatRepo
 
 class SeatService():
 
-    def __init__(self, seatRepo):
+    def __init__(self, seatRepo:SeatRepo):
         self.seatRepo = seatRepo
 
-    def _validate_seat(self, new_seat, audi_column_count, audi_row_count):
+    def _validate_seat_create_parameters(self, new_seat, audi_column_count, audi_row_count):
 
         if new_seat.id == None:
             raise ValueError("Error in creating seat id")
@@ -34,6 +35,21 @@ class SeatService():
         if new_seat.type == None:
             raise ValueError("Seat type required")
 
+    def _fetch_seat_types(self, seat_ids):
+        if not seat_ids:
+            raise ValueError("No seat provided")
+        return self.seatRepo._fetch_seat_types(seat_ids)
+
+    def seats_type(self, seat_ids):
+
+        seats_type = {}
+
+        for seat_id in seat_ids:
+            seat_type = self.seatRepo._seat_type(seat_id)
+            seats_type[seat_id] = seat_type
+
+        return seats_type
+
     def createAudiSeats(self, audi_id, column_count, row_count):
             
             for row_index in range(1,row_count+1):
@@ -50,38 +66,38 @@ class SeatService():
 
     def createSeat(self, new_seat:SeatDomain, audi_column_count, audi_row_count ):
         
-        self._validate_seat(new_seat, audi_column_count, audi_row_count)
+        self._validate_seat_create_parameters(new_seat, audi_column_count, audi_row_count)
         created_seat = self.seatRepo.createSeat(new_seat)
         return created_seat
 
-    def fetchAudiSeats(self, audi_id):
-        return self.seatRepo.fetchAudiSeats(audi_id)
+    # def fetchAudiSeats(self, audi_id):
+    #     return self.seatRepo.fetchAudiSeats(audi_id)
 
-    def fetchAudiSeatTypes(self, audi_id):
-        return self.seatRepo.fetchAudiSeatTypes(audi_id)
+    # def fetchAudiSeatTypes(self, audi_id):
+    #     return self.seatRepo.fetchAudiSeatTypes(audi_id)
 
-    def fetchSeat(self, seatId):
+    # def fetchSeat(self, seatId):
 
-        if seatId == None:
-            raise ValueError("Seat id required")
+    #     if seatId == None:
+    #         raise ValueError("Seat id required")
 
-        fetched_seat = self.seatRepo.fetchSeat(seatId)
+    #     fetched_seat = self.seatRepo.fetchSeat(seatId)
 
-        return fetched_seat
+    #     return fetched_seat
 
-    def deleteSeat(self, seat_to_delete):
+    # def deleteSeat(self, seat_to_delete):
 
-        if seat_to_delete.id == None:
-            raise ValueError("Seat id required")
+    #     if seat_to_delete.id == None:
+    #         raise ValueError("Seat id required")
         
-        if seat_to_delete.user_id == None:
-            raise ValueError("User id required")
+    #     if seat_to_delete.user_id == None:
+    #         raise ValueError("User id required")
 
-        deleted_seat = self.seatRepo.deleteSeat(seat_to_delete)
+    #     deleted_seat = self.seatRepo.deleteSeat(seat_to_delete)
 
-        return deleted_seat
+    #     return deleted_seat
 
-    def updateSeat(self, seat_to_update):
+    # def updateSeat(self, seat_to_update):
 
         if seat_to_update.id == None:
             raise ValueError("Seat id required")

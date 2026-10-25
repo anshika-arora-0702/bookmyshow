@@ -2,3 +2,7 @@
 __pycache__/
 *.py[cod]
 .env
+seed_data
+assumptions
+
+

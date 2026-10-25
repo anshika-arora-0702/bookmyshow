@@ -50,7 +50,7 @@ class Booking(Base):
         nullable=False
     )
 
-    requested_time = Column(
+    reservation_expires_at = Column(
         DateTime(timezone=True),
         nullable = False
     )

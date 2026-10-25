@@ -5,3 +5,4 @@ class PaymentStatus(str, Enum):
     FAILED = "FAILED"
     PENDING = "PENDING"
     CANCELLED = "CANCELLED"
+    UNKNOWN = "UNKNOWN"

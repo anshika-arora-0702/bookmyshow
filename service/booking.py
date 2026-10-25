@@ -1,18 +1,27 @@
+from decimal import Decimal
+
 from models.domain.bookings.booking import Booking as BookingDomain
 from models.domain.payments.payment import Payment as PaymentDomain
 from models.database.payments.payment_status import PaymentStatus
+from models.database.bookings.booking_status import BookingStatus
 from models.requests.bookings.cancel_booking import CancelBookingRequest
 
 import utils.getId as getId
 
 from repo.booking import BookingRepo
 from service.payment import PaymentService
+from service.user import UserService
+from service.show import ShowService
+
+from exceptions import booking_exceptions
 class BookingService():
 
-    def __init__(self, bookingRepo : BookingRepo, paymentService : PaymentService, db_session):
+    def __init__(self, bookingRepo : BookingRepo, paymentService : PaymentService, userService:UserService ,showService:ShowService, db_session):
         self.bookingRepo = bookingRepo
         self.paymentService = paymentService
         self.db_session = db_session
+        self.userService = userService
+        self.showService = showService
 
     def _validate_booking(self, new_booking:BookingDomain):
 
@@ -25,68 +34,91 @@ class BookingService():
         if new_booking.show_id == None:
             raise ValueError("Show id required")        
 
-        if new_booking.seat_ids == None:
+        if not new_booking.seat_ids:
             raise ValueError("At least one seat is required")
 
-        if new_booking.payment_id == None:
-            raise ValueError("Payment not done")
-
-    def createBooking(self, new_booking:BookingDomain, payment:PaymentDomain):
+    def createBooking(self, new_booking:BookingDomain, payment_mode):
 
         self._validate_booking(new_booking)
 
-        with self.db_session.begin():
-            created_payment = self.paymentService.createPendingPayment(payment)
-            created_booking = self.bookingRepo.createPendingBooking(new_booking)
-            self.bookingRepo.reserveSeats(show_id = created_booking.show_id,
-                                           seat_ids = created_booking.seat_ids,
-                                           booking_id = created_booking.id)
+        try:
 
-        payment_status = self.paymentService.processPayment(created_payment, created_booking.user_id)
+            with self.db_session.begin():
+                self.userService._is_valid_user(new_booking.user_id)
+                price = self.showService._calculate_show_seats_price(new_booking.show_id, new_booking.seat_ids)
 
-        with self.db_session.begin():
+                payment = PaymentDomain(id = getId.getRandomId(), 
+                                        amount=price,
+                                        status=PaymentStatus.PENDING,
+                                        mode=payment_mode )
 
-            if payment_status == PaymentStatus.SUCCESSFUL :
-                self.bookingRepo.confirmBooking(created_booking.id)
-                self.paymentService.markSuccessful(payment.id)
-            else:
-                self.bookingRepo.failedAndReleaseSeats(created_booking.id)
-                self.paymentService.markFailed(payment.id)
+                new_booking.payment_id = payment.id
+                created_payment: PaymentDomain = self.paymentService.createPendingPayment(payment)
+                created_booking: BookingDomain = self.bookingRepo.createPendingBooking(new_booking)
+                self.showService.reserveSeats(show_id = created_booking.show_id,
+                                            seat_ids = created_booking.seat_ids,
+                                            booking_id = created_booking.id)
 
-        return created_booking
+            payment_status = self.paymentService.processPayment(created_payment, created_booking.user_id)
 
-    def fetchBooking(self, booking_to_fetch):
+            with self.db_session.begin():
 
-        if booking_to_fetch.id == None:
-            raise ValueError("Booking id required")
+                if payment_status == PaymentStatus.SUCCESSFUL :
+                    self.bookingRepo.markBookingConfirmed(created_booking.id)
+                    self.paymentService.markSuccessful(payment.id)
+                    created_booking.status = BookingStatus.BOOKED
 
-        if booking_to_fetch.user_id == None:
-            raise ValueError("User id required")
+                elif payment_status == PaymentStatus.FAILED :
+                    self.bookingRepo.markBookingFailed(created_booking.id)
+                    self.showService.releaseSeats(created_booking.id,created_booking.show_id,created_booking.seat_ids)
+                    self.paymentService.markFailed(payment.id)
+                    created_booking.status= BookingStatus.FAILED
 
-        fetched_booking = self.bookingRepo.fetchBooking(booking_to_fetch)
+                elif payment_status == PaymentStatus.UNKNOWN:
+                    self.paymentService.markUnknown(payment.id)
+                    created_booking.status = BookingStatus.PENDING
 
-        return fetched_booking
+                else:
+                    raise ValueError(f"Unexpected payment status: {payment_status}")
 
-    def cancelBooking(self, booking_to_cancel: CancelBookingRequest):
+            return created_booking
 
-        if booking_to_cancel.id == None:
-            raise ValueError("Booking id  required")
+        except Exception as e:
+            raise Exception from e
+
+
+    # def fetchBooking(self, booking_to_fetch):
+
+    #     if booking_to_fetch.id == None:
+    #         raise ValueError("Booking id required")
+
+    #     if booking_to_fetch.user_id == None:
+    #         raise ValueError("User id required")
+
+    #     fetched_booking = self.bookingRepo.fetchBooking(booking_to_fetch)
+
+    #     return fetched_booking
+
+    # def cancelBooking(self, booking_to_cancel: CancelBookingRequest):
+
+    #     if booking_to_cancel.id == None:
+    #         raise ValueError("Booking id  required")
         
-        if booking_to_cancel.user_id == None:
-            raise ValueError("User id required")
+    #     if booking_to_cancel.user_id == None:
+    #         raise ValueError("User id required")
 
-        booking = self.bookingRepo.fetchBooking(booking_to_cancel.id)
+    #     booking = self.bookingRepo.fetchBooking(booking_to_cancel.id)
 
-        with self.db_session.begin():
-            self.bookingRepo.cancelAndReleaseSeats(booking.id)
+    #     with self.db_session.begin():
+    #         self.bookingRepo.cancelAndReleaseSeats(booking.id)
 
-        with self.db_session.begin():
-            payment_id = booking.payment_id
-            payment_status = self.paymentService.cancelPayment(payment_id)
-            if payment_status == PaymentStatus.CANCELLED:
-                self.paymentService.markCancelled(payment_id)
+    #     with self.db_session.begin():
+    #         payment_id = booking.payment_id
+    #         payment_status = self.paymentService.cancelPayment(payment_id)
+    #         if payment_status == PaymentStatus.CANCELLED:
+    #             self.paymentService.markCancelled(payment_id)
 
-        cancelled_booking = self.bookingRepo.fetchBooking(booking.id)
-        return cancelled_booking
+    #     cancelled_booking = self.bookingRepo.fetchBooking(booking.id)
+    #     return cancelled_booking
 
 #do we need update booking???

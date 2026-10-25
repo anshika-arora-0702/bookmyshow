@@ -19,3 +19,8 @@ class ShowIntegrityException(ShowException):
 
     def __init__(self):
         super().__init__(f"Show data violates a db constraint")
+
+class ShowSeatException(ShowException):
+
+    def __init__(self, show_id, seat_id):
+        super().__init__(f"Seat {seat_id} doesn't exist for show {show_id}")

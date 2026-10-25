@@ -8,4 +8,4 @@ class CreateBookingResponse(BaseModel):
     id: UUID4
     status: BookingStatus
     payment_id: UUID4
-    seats: list[UUID4]
+    seat_ids: list[UUID4]

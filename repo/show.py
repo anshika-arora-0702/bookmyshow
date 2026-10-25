@@ -1,17 +1,95 @@
 from models.domain.shows.show import Show as ShowDomain
 from models.database.shows.show import Show as ShowDB
 from models.database.shows.show_seat_availability import ShowSeatAvailability
+from exceptions import booking_exceptions
 
 from exceptions import show_exceptions
 
 from datetime import datetime,timezone
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
+from sqlalchemy import select, update
 class ShowRepo:
 
     def __init__(self, db_session):
         self.db_session = db_session
+
+    def _calculate_show_seats_price(self,show_id, seat_ids):
+
+        if not show_id:
+            raise ValueError("No show provided")
+        
+        show:ShowDB = self.db_session.get(ShowDB, show_id)
+
+        if show is None:
+            raise show_exceptions.ShowNotFoundException(show_id)
+
+        if not seat_ids:
+            raise ValueError("At least one seat is required")
+
+        requested_ids = set(seat_ids)
+
+        if len(requested_ids) != len(seat_ids):
+            raise ValueError("Duplicate seat ids provided")
+        
+        
+        rows = self.db_session.execute(
+            select(
+                ShowSeatAvailability.seat_id,
+                ShowSeatAvailability.availability,
+            ).where(
+                ShowSeatAvailability.show_id == show_id,
+                ShowSeatAvailability.seat_id.in_(requested_ids),
+            )
+        ).all()
+
+        rows_by_id = {row.seat_id: row.availability for row in rows}
+        missing_ids = requested_ids - rows_by_id.keys()
+
+        if missing_ids:
+            raise ValueError(f"These seats do not belong to this show: {missing_ids}")
+        
+        unavailable_ids = {seat_id for seat_id, available in rows_by_id.items() if not available}
+
+        if unavailable_ids:
+            raise ValueError(f"These seats are unavailable: {unavailable_ids}")
+
+        return show.price_dict
+
+    def reserveSeats(self,show_id,seat_ids,booking_id):
+
+        result = self.db_session.execute(update(ShowSeatAvailability).where(
+                ShowSeatAvailability.show_id == show_id,
+                ShowSeatAvailability.seat_id.in_(seat_ids),
+                ShowSeatAvailability.availability.is_(True),
+            )
+            .values(
+                availability=False,
+                booking_id=booking_id,
+                updated_at=datetime.now(timezone.utc),
+            )
+        )
+
+        if result.rowcount !=  len(seat_ids):
+            raise show_exceptions.ShowSeatException(show_id,"one or more requested seats are unavailable")
+
+
+        self.db_session.flush()
+
+    def releaseSeats(self, booking_id, show_id, seat_ids):
+
+        try: 
+            for seat_id in seat_ids:
+                    show_seat : ShowSeatAvailability = self.db_session.get(ShowSeatAvailability, (show_id, seat_id))
+                    if show_seat.booking_id == booking_id:
+                        show_seat.availability = True
+                        show_seat.booking_id = None
+                        show_seat.updated_at = datetime.now(timezone.utc)
+
+        except Exception as error:
+            raise 
+
+
 
     def _validate_time(self,audi_id, proposed_start_time, proposed_end_time):
 
@@ -43,7 +121,7 @@ class ShowRepo:
                           audi_id = show.audi_id,
                           movie_id = show.movie_id,
                           start_time= show.start_time,
-                          price= show.price
+                          price= show.price_dict
                           )
 
     def createShow(self,show_to_create_domain: ShowDomain, end_time):

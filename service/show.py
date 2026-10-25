@@ -8,6 +8,8 @@ from repo.show import ShowRepo
 
 from datetime import timedelta
 
+from decimal import Decimal
+
 from exceptions import user_exceptions
 from exceptions import show_exceptions
 
@@ -70,87 +72,117 @@ class ShowService():
         self.showRepo._validate_time(audi_id, proposed_start_time, proposed_end_time)
         return proposed_end_time
 
+    def _calculate_show_seats_price(self,show_id, seat_ids):
 
-    def createShow(self, new_show: Show):
+        if show_id is None:
+            raise ValueError("No show provided")
+        if seat_ids is None:
+            raise ValueError("No seats provided")
 
-        self._validate_show(new_show)
+        seat_ids_types : dict = self.seatService.seats_type(seat_ids)
 
-        try:
+        price_dict = self.showRepo._calculate_show_seats_price(show_id, seat_ids)
 
-            with self.db_session.begin():
-                audi = self._fetch_audi(new_show.audi_id)
-                movie = self._fetch_movie(new_show.movie_id)
+        price = Decimal("0.00")
 
-                if audi.user_id != new_show.added_by and not(self._is_superadmin(new_show.added_by)):
-                    raise user_exceptions.UnauthorizedException("Show" , "create")
+        for seat_id in seat_ids:
+            seat_type = seat_ids_types[seat_id]
+            price = price + Decimal(str(price_dict[seat_type.value]))
+
+            '''Since seat_type is SeatType Enum but in price_dict(stored in JSON format), keys are strings not SeatType Enum
+            .value will convert enums to strings to look in dictionary'''
+            
+        return price
+
+
+    def reserveSeats(self, show_id,seat_ids,booking_id):
+        return self.showRepo.reserveSeats(show_id,seat_ids,booking_id)
+
+    def releaseSeats(self,booking_id, show_id, seat_ids):
+        return self.showRepo.releaseSeats(booking_id, show_id,seat_ids)
+        
+
+
+    # def createShow(self, new_show: Show):
+
+    #     self._validate_show(new_show)
+
+    #     try:
+
+    #         with self.db_session.begin():
+    #             audi = self._fetch_audi(new_show.audi_id)
+    #             movie = self._fetch_movie(new_show.movie_id)
+
+    #             if audi.user_id != new_show.added_by and not(self._is_superadmin(new_show.added_by)):
+    #                 raise user_exceptions.UnauthorizedException("Show" , "create")
                 
-                self._validate_price(audi.id, new_show.price)
-                end_time = self._validate_time(new_show.start_time,new_show.audi_id, movie)
-                created_show = self.showRepo.createShow(new_show, end_time)
-                seat_list = self.seatService.fetchAudiSeats(created_show.audi_id)
-                self.showRepo.createShowSeats(created_show.id, seat_list)
+    #             self._validate_price(audi.id, new_show.price)
+    #             end_time = self._validate_time(new_show.start_time,new_show.audi_id, movie)
+    #             created_show = self.showRepo.createShow(new_show, end_time)
+    #             seat_list = self.seatService.fetchAudiSeats(created_show.audi_id)
+    #             self.showRepo.createShowSeats(created_show.id, seat_list)
 
-            return created_show
+    #         return created_show
         
-        except IntegrityError as e:
-            raise show_exceptions.ShowIntegrityException() from e
+    #     except IntegrityError as e:
+    #         raise show_exceptions.ShowIntegrityException() from e
 
-    def fetchShow(self, showId):
+    # def fetchShow(self, showId):
 
-        if showId == None:
-            raise ValueError("Show id required")
+    #     if showId == None:
+    #         raise ValueError("Show id required")
 
-        fetched_show = self.ShowRepo.fetchShow(showId)
+    #     fetched_show = self.ShowRepo.fetchShow(showId)
 
-        return fetched_show
+    #     return fetched_show
 
-    def deleteShow(self, show_to_delete):
+    # def deleteShow(self, show_to_delete):
 
-        if show_to_delete.id == None:
-            raise ValueError("Show id required")
+    #     if show_to_delete.id == None:
+    #         raise ValueError("Show id required")
         
-        if show_to_delete.deleted_by_id == None:
-            raise ValueError("Deleted by id required")
+    #     if show_to_delete.deleted_by_id == None:
+    #         raise ValueError("Deleted by id required")
 
-        deleted_show = self.ShowRepo.deleteShow(show_to_delete)
+    #     deleted_show = self.ShowRepo.deleteShow(show_to_delete)
 
-        return deleted_show
+    #     return deleted_show
 
-    def updateShow(self, show_to_update):
+    # def updateShow(self, show_to_update):
 
-        if show_to_update.id == None:
-            raise ValueError("Show id required")
+    #     if show_to_update.id == None:
+    #         raise ValueError("Show id required")
 
-        if show_to_update.updates_by_id == None:
-            raise ValueError("Updates by id is required")
+    #     if show_to_update.updates_by_id == None:
+    #         raise ValueError("Updates by id is required")
 
-        updated_show = self.showRepo.updateShow(show_to_update)
+    #     updated_show = self.showRepo.updateShow(show_to_update)
 
-        return updated_show
+    #     return updated_show
 
-    def fetchShowSeatAvailability(self, showId):
+    # def fetchShowSeatAvailability(self, showId):
 
-        if showId == None:
-            raise ValueError("Show id required")
+    #     if showId == None:
+    #         raise ValueError("Show id required")
 
-        fetched_show_seat_availability = self.ShowRepo.fetchShowSeatAvailability(showId)
+    #     fetched_show_seat_availability = self.ShowRepo.fetchShowSeatAvailability(showId)
 
-        return fetched_show_seat_availability
+    #     return fetched_show_seat_availability
 
-    #when a booking is made or cancelled
-    def updateShowSeatAvailability(self, show_seat_availability_to_update):
+    # #when a booking is made or cancelled
+    # def updateShowSeatAvailability(self, show_seat_availability_to_update):
 
-        if show_seat_availability_to_update.show_id == None:
-            raise ValueError("Show id required")
+    #     if show_seat_availability_to_update.show_id == None:
+    #         raise ValueError("Show id required")
         
-        if show_seat_availability_to_update.seats == None:
-            raise ValueError("Seats required")
+    #     if show_seat_availability_to_update.seats == None:
+    #         raise ValueError("Seats required")
         
-        if show_seat_availability_to_update.booking_id == None:
-            raise ValueError("Booking id required")
+    #     if show_seat_availability_to_update.booking_id == None:
+    #         raise ValueError("Booking id required")
 
-        updated_show_seat_availability = self.ShowRepo.updateShowSeatAvailability(show_seat_availability_to_update)
+    #     updated_show_seat_availability = self.ShowRepo.updateShowSeatAvailability(show_seat_availability_to_update)
 
-        return updated_show_seat_availability
+    #     return updated_show_seat_availability
 
 

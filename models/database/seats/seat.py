@@ -7,7 +7,7 @@ class Seat(Base):
     __tablename__ = "seat"
 
     __table_args__ = (
-        PrimaryKeyConstraint("audi_id", "id"),
+        PrimaryKeyConstraint("id"),
         UniqueConstraint(
             "audi_id",
             "row_char",
