@@ -39,7 +39,7 @@ class Show(Base):
         nullable= False
     )
 
-    price = Column(
+    price_dict = Column(
         JSON, 
         nullable=False
     )    

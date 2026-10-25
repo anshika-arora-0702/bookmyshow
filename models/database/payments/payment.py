@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Enum, REAL, UUID, DateTime
+from sqlalchemy import Column, Enum, REAL, UUID, DateTime, Numeric
 from models.database.base import Base
 from models.database.payments.payment_status import PaymentStatus
 from models.database.payments.payment_mode import PaymentMode
@@ -14,7 +14,7 @@ class Payment(Base):
     )
 
     amount = Column(
-        REAL,
+        Numeric(12,2),
         nullable=False
     )
 

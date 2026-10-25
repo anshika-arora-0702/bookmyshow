@@ -18,7 +18,7 @@ from models.response.bookings.fetch_booking import FetchBookingResponse
 from models.response.bookings.cancel_booking import CancelBookingResponse
 
 import utils.getId as getId 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from service.booking import BookingService
 from dependency import create_booking_service
@@ -28,30 +28,28 @@ def createBookingRouter():
 
     @router.post("/createBooking")
     async def create_booking(booking_to_create_body:CreateBookingRequest, bookingService:BookingService = Depends(create_booking_service)):
-
-        payment = Payment(id = getId.getRandomId(),
-                          amount = booking_to_create_body.payment_details.amount,
-                          mode = booking_to_create_body.payment_details.mode,
-                          status= PaymentStatus.PENDING)
-        
         new_booking = Booking(id = getId.getRandomId(), 
                         user_id = booking_to_create_body.user_id, 
                         status = BookingStatus.PENDING,
-                        payment_id= payment.id,
                         seat_ids = booking_to_create_body.seat_ids, 
-                        show_id = booking_to_create_body.show_id, 
-                        requested_time = datetime.now(timezone.utc),
-                        booking_time = datetime.now(timezone.utc)
+                        show_id = booking_to_create_body.show_id,
+                        payment_id=None
                         )
 
         try:
-            created_booking = bookingService.createBooking(new_booking, payment)
+            created_booking = bookingService.createBooking(new_booking, booking_to_create_body.payment_mode)
             created_booking_response = CreateBookingResponse.model_validate(created_booking)
             return {"Created Booking" : created_booking_response}
 
         except booking_exceptions.BookingAlreadyExists as e:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, 
+                detail=str(e)
+            )
+
+        except booking_exceptions.BookingException as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
 

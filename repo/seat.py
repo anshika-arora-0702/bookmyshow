@@ -35,7 +35,44 @@ class SeatRepo:
                       type = seat.type
                       )
 
+    def _seat_type(self, seat_id):
+
+        seat:SeatDB = self.db_session.get(SeatDB, seat_id)
+
+        if seat is None:
+            raise seat_exceptions.SeatNotFoundException(seat_id)
+        return seat.type
+
+    def _fetch_seat_types(self, seat_ids):
+
+        if not seat_ids:
+            raise ValueError("At least one seat ID is required")
+        requested_ids = set(seat_ids)
+
+        rows = self.db_session.execute(
+            select(SeatDB.id, SeatDB.type).where(
+                SeatDB.id.in_(requested_ids)
+            )
+        ).all()
+
+        seat_types_by_id = {
+            seat_id: seat_type
+            for seat_id, seat_type in rows
+        }
+
+        missing_ids = requested_ids - seat_types_by_id.keys()
+
+        if missing_ids:
+            missing_id = next(
+                seat_id for seat_id in seat_ids
+                if seat_id in missing_ids
+            )
+            raise seat_exceptions.SeatNotFoundException(missing_id)
+
+        return seat_types_by_id
+
     def createSeat(self, seat_to_create_domain:SeatDomain):
+        
         
         try:
             seat_to_create_db = self._seat_to_db(seat_to_create_domain)

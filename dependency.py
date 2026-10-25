@@ -37,33 +37,21 @@ def create_user_service(db:Session = Depends(get_db)):
     userRepo = UserRepo(db)
     return UserService(userRepo)
 
-
-
-
 def create_payment_service(db:Session = Depends(get_db)):
     paymentRepo = PaymentRepo(db)
     return PaymentService(paymentRepo, FakePaymentProvider() )
 
-def create_booking_service(db:Session = Depends(get_db),
-                           payment_service : PaymentService = Depends(create_payment_service)):
-    bookingRepo = BookingRepo(db)
-    return BookingService(bookingRepo, payment_service, db)
+def create_seat_service(db:Session = Depends(get_db)):
+    seatRepo = SeatRepo(db)
+    return SeatService(seatRepo)
 
 def create_cinema_service(db:Session = Depends(get_db)):
     cinemaRepo = CinemaRepo(db)
     return CinemaService(cinemaRepo)
 
-def create_city_service(db:Session = Depends(get_db)):
-    cityRepo = CityRepo(db)
-    return CityService(cityRepo)
-
 def create_movie_service(db:Session = Depends(get_db)):
     movieRepo = MovieRepo(db)
     return MovieService(movieRepo)
-
-def create_seat_service(db:Session = Depends(get_db)):
-    seatRepo = SeatRepo(db)
-    return SeatService(seatRepo)
 
 def create_audi_service(db:Session = Depends(get_db), 
                         seat_service : SeatService = Depends(create_seat_service),
@@ -79,4 +67,24 @@ def create_show_service(db:Session = Depends(get_db),
                         movie_service: MovieService = Depends(create_movie_service)):
     showRepo = ShowRepo(db)
     return ShowService(showRepo, seat_service, user_service, audi_service,movie_service, db)
+
+def create_booking_service(db:Session = Depends(get_db),
+                           payment_service : PaymentService = Depends(create_payment_service),
+                           user_service: UserService = Depends(create_user_service),
+                           show_service : ShowService = Depends(create_show_service)
+                           ):
+    bookingRepo = BookingRepo(db)
+    return BookingService(bookingRepo, payment_service, user_service, show_service, db)
+
+def create_city_service(db:Session = Depends(get_db)):
+    cityRepo = CityRepo(db)
+    return CityService(cityRepo)
+
+
+
+
+
+
+
+
 

@@ -16,6 +16,14 @@ class UserRepo:
     def __init__(self, db_session):
         self.db_session = db_session
 
+    def _is_valid(self, user_id):
+
+        user = self.db_session.get(UserDB, user_id)
+        if user is None:
+            raise user_exceptions.UserDoesnotExistException(user_id)
+        return True
+
+
     def _is_admin(self, user_id):
         user = self.db_session.get(UserDB, user_id)
         if user is None:
